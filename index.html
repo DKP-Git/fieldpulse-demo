@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}body{margin:0}</style>
+<meta charset="utf-8">
+<title>FieldPulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: FieldPulse shell — deep-green sidebar with grouped nav, top bar with breadcrumb + primary action, white 11px cards on pale paper */
+:root{
+  --bg:#F6F8F7; --surface:#FFFFFF; --sunk:#EEF2F0; --ink:#10201C; --muted:#6F7D78; --line:#E5EBE8;
+  --tape:#0C6B50; --tape-soft:#E3F3EC; --on-tape:#FFFFFF;
+  --ok:#0C6B50; --ok-soft:#E3F3EC; --warn:#B87818; --warn-soft:#FCF1DF; --crit:#B54F42; --crit-soft:#FAEBE8; --bar-crit:#D65F51; --bar-warn:#E7A84C;
+  --blue:#3F78D6; --blue-soft:#E8F0FC; --violet:#6C57C9; --violet-soft:#EEEBFA;
+  --star:#E0A100; --side:#081511; --side-ink:#DBE7E2; --side-muted:#9FB2AA; --side-active:#17392D; --side-line:#1B2E27; --mint:#9FE0C4;
+  --f-display:Manrope, "Helvetica Neue", Arial, sans-serif;
+  --f-body:"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"DM Mono", ui-monospace, Menlo, monospace;
+  --r:11px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1411; --surface:#121E1A; --sunk:#182722; --ink:#E4EEEA; --muted:#93A6A0; --line:#22342E;
+  --tape:#3FBF8E; --tape-soft:#14352A; --on-tape:#06130E;
+  --ok:#4CC99A; --ok-soft:#123326; --warn:#E7A84C; --warn-soft:#33270F; --crit:#EE7F72; --crit-soft:#3A1A16; --bar-crit:#E06A5C; --bar-warn:#E7A84C;
+  --blue:#7BA7F0; --blue-soft:#172A47; --violet:#A796EE; --violet-soft:#251F42;
+  --star:#F2C14B; --side:#050D0A; --side-ink:#DBE7E2; --side-muted:#8BA097; --side-active:#163428; --side-line:#16261F; --mint:#9FE0C4; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1411; --surface:#121E1A; --sunk:#182722; --ink:#E4EEEA; --muted:#93A6A0; --line:#22342E;
+  --tape:#3FBF8E; --tape-soft:#14352A; --on-tape:#06130E;
+  --ok:#4CC99A; --ok-soft:#123326; --warn:#E7A84C; --warn-soft:#33270F; --crit:#EE7F72; --crit-soft:#3A1A16; --bar-crit:#E06A5C; --bar-warn:#E7A84C;
+  --blue:#7BA7F0; --blue-soft:#172A47; --violet:#A796EE; --violet-soft:#251F42;
+  --star:#F2C14B; --side:#050D0A; --side-ink:#DBE7E2; --side-muted:#8BA097; --side-active:#163428; --side-line:#16261F; --mint:#9FE0C4; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--tape);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:1.85rem;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+h2{font-size:1.05rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100%}
+.side{background:var(--side);color:var(--side-ink);padding:22px 14px 16px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px 6px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:#17392D;display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:8px 7px;flex:none}
+.brand-mark i{width:3px;border-radius:2px;background:var(--mint)}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:1.2rem;color:#fff;letter-spacing:-.02em}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav .grp{font-size:.72rem;color:var(--side-muted);letter-spacing:.05em;padding:14px 10px 6px;opacity:.85}
+.nav .grp:first-child{padding-top:0}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;color:var(--side-muted);text-decoration:none;font-weight:500;font-size:.9rem}
+.nav a:hover{background:rgba(255,255,255,.05);color:var(--side-ink)}
+.nav a[aria-current="page"]{background:var(--side-active);color:#fff;font-weight:600}
+.nav .ico{width:18px;text-align:center;font-size:.9rem;color:inherit}
+.nav .badge{margin-left:auto;font-size:.72rem;font-weight:600;background:#1F3A30;color:var(--side-ink);padding:1px 7px;border-radius:99px}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.live{border:1px solid var(--side-line);background:#0E1F19;border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;font-size:.8rem}
+.live .ld{width:8px;height:8px;border-radius:50%;background:#4CD28F;box-shadow:0 0 0 3px rgba(76,210,143,.18);grid-row:1/3}
+.live b{color:#fff;font-weight:600}
+.live span{color:var(--side-muted);font-size:.72rem}
+.user{display:flex;align-items:center;gap:10px;border-top:1px solid var(--side-line);padding:12px 4px 0}
+.avatar{width:34px;height:34px;border-radius:8px;background:#E3F3EC;color:#0C6B50;display:grid;place-items:center;font-weight:700;font-size:.78rem}
+.user b{display:block;color:#fff;font-size:.84rem;font-weight:600}
+.user span{font-size:.74rem;color:var(--side-muted)}
+.user button{margin-left:auto;background:none;border:0;color:var(--side-muted);font-size:.72rem;text-decoration:underline;padding:4px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(16px,3.2vw,40px);border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.crumb{font-size:.86rem;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600}
+.crumb i{font-style:normal;margin:0 8px;opacity:.6}
+.tb-acts{display:flex;gap:8px;align-items:center}
+.ib{width:36px;height:36px;border:1px solid var(--line);background:var(--surface);border-radius:8px;display:grid;place-items:center;color:var(--muted);position:relative}
+.ib .nd{position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--bar-crit)}
+.wrapm{min-width:0;display:flex;flex-direction:column}
+main{padding-block:28px 60px;padding-inline:clamp(16px,3.2vw,40px);min-width:0;max-width:1240px;width:100%}
+.eyebrow.date{color:var(--muted);font-weight:700}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.head p{margin:4px 0 0;color:var(--muted);max-width:62ch}
+.sample{font-size:.72rem;font-family:var(--f-mono);color:var(--muted);border:1px dashed var(--line);padding:3px 8px;border-radius:6px}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;font-size:.86rem;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--tape);border-color:var(--tape);color:var(--on-tape)}
+.btn.soft{background:var(--tape-soft);border-color:transparent;color:var(--tape)}
+.btn.lg{padding:10px 16px}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.sm{padding:4px 9px;font-size:.8rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.panel-h p{margin:2px 0 0;color:var(--muted);font-size:.84rem}
+.grid{display:grid;gap:16px}
+.g-main{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}
+@media (max-width:980px){.g-main{grid-template-columns:1fr}}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:17px 18px 15px;display:flex;flex-direction:column;gap:4px}
+.kpi .kt{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.kpi .tile{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:.85rem;font-weight:700}
+.tile.g{background:var(--tape-soft);color:var(--tape)} .tile.b{background:var(--blue-soft);color:var(--blue)} .tile.a{background:var(--warn-soft);color:var(--warn)} .tile.v{background:var(--violet-soft);color:var(--violet)}
+.delta{font-size:.72rem;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--sunk);color:var(--muted)}
+.delta.up{background:var(--tape-soft);color:var(--tape)} .delta.dn{background:var(--warn-soft);color:var(--warn)}
+.kpi .eyebrow{text-transform:none;letter-spacing:0;font-size:.84rem;font-weight:500}
+.kpi .v{font-family:var(--f-display);font-size:2rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:.9rem;color:var(--muted);font-weight:500;margin-left:2px}
+.kpi .s{font-size:.8rem;color:var(--muted)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:8px;white-space:nowrap}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.watch,.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.minor,.pill.info{background:var(--sunk);color:var(--muted)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.tape{background:var(--tape-soft);color:var(--tape)}
+
+.stars{position:relative;display:inline-block;color:var(--line);letter-spacing:1px;font-size:.95rem;line-height:1}
+.stars::before{content:"★★★★★"}
+.stars::after{content:"★★★★★";position:absolute;inset:0 auto 0 0;width:var(--v);overflow:hidden;color:var(--star);white-space:nowrap}
+.fc{display:inline-flex;align-items:center;gap:7px}
+.fc b{font-family:var(--f-mono);font-weight:500;font-size:.92rem}
+
+/* warnings */
+.warn-list{display:flex;flex-direction:column}
+.wrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
+.wrow:first-child{border-top:0;padding-top:2px}
+.wrow .dot{width:4px;align-self:stretch;border-radius:3px;min-height:36px}
+.dot.crit{background:var(--bar-crit)} .dot.watch{background:var(--bar-warn)} .dot.ok{background:var(--ok)} .dot.info{background:var(--tape)}
+.wrow .t{font-weight:600}
+.wrow .m{font-size:.82rem;color:var(--muted)}
+.wrow .fix{font-size:.82rem;margin-top:3px}
+.wrow .fix b{color:var(--tape);font-weight:600}
+.wrow .m b{color:var(--ink);font-weight:600}
+.wrow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.wrow.stack{grid-template-columns:auto minmax(0,1fr)}.wrow.stack .acts{grid-column:2;justify-content:flex-start;align-items:center}
+.g-half{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}@media (max-width:980px){.g-half{grid-template-columns:1fr}}
+@media (max-width:560px){.wrow{grid-template-columns:auto minmax(0,1fr)}.wrow .acts{grid-column:2;justify-content:flex-start}}
+
+/* project rows */
+.prow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.2fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.prow:first-of-type{border-top:0}
+.pname b{display:block;font-weight:600}
+.pname span{font-size:.8rem;color:var(--muted)}
+.gates{display:flex;gap:3px}
+.gates i{flex:1;height:7px;border-radius:2px;background:var(--sunk)}
+.gates i.pass{background:var(--ok)} .gates i.fail{background:var(--bar-crit)} .gates i.now{background:var(--blue)}
+.gate-l{font-size:.75rem;color:var(--muted);margin-top:5px}
+.driver{font-size:.78rem;color:var(--muted);margin-top:3px}
+.why{grid-column:1/-1;background:var(--sunk);border-radius:8px;padding:10px 14px;font-size:.84rem}
+.why table{width:100%;border-collapse:collapse}
+.why td{padding:3px 0}
+.why td:last-child{text-align:right;font-family:var(--f-mono)}
+.neg{color:var(--crit)}
+@media (max-width:720px){.prow{grid-template-columns:minmax(0,1fr) auto}.prow .gcol{grid-column:1/-1;order:3}.prow .fcol{order:2}}
+
+/* feed */
+.feed{display:flex;flex-direction:column;gap:12px}
+.fi{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:start;font-size:.86rem}
+.fi .ic{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.78rem;font-weight:600}
+.ic.ok{background:var(--ok-soft);color:var(--ok)} .ic.crit{background:var(--crit-soft);color:var(--crit)} .ic.watch{background:var(--warn-soft);color:var(--warn)} .ic.info{background:var(--tape-soft);color:var(--tape)}
+.fi .when{font-family:var(--f-mono);font-size:.74rem;color:var(--muted)}
+
+/* field check */
+.check-wrap{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.check-wrap{grid-template-columns:1fr}}
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 160px;min-width:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.inp{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%;font-weight:400;color:var(--ink)}
+.gate-tabs{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:9px;flex-wrap:wrap}
+.gate-tabs button{flex:1;border:0;background:none;border-radius:6px;padding:6px 8px;font-size:.82rem;font-weight:500;color:var(--muted)}
+.gate-tabs button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.gate-tabs .st{font-size:.68rem;display:block}
+.items{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .lbl{font-size:.88rem}
+.item .lbl small{display:block;color:var(--muted);font-size:.74rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:5px 10px;font-size:.78rem;font-weight:600;color:var(--muted);border-left:1px solid var(--line)}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"][data-v="pass"]{background:var(--ok-soft);color:var(--ok)}
+.seg button[aria-pressed="true"][data-v="fail"]{background:var(--crit-soft);color:var(--crit)}
+.seg button[aria-pressed="true"][data-v="na"]{background:var(--sunk);color:var(--ink)}
+.readings{display:flex;flex-direction:column;gap:10px;background:var(--sunk);border-radius:10px;padding:12px}
+.rd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:end}
+.rd .ins{display:flex;gap:8px;flex-wrap:wrap}
+.rd .ins label{flex:1 1 110px}
+.rd .unit{position:relative}
+.photos{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.photos img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.upl{border:1px dashed var(--muted);border-radius:8px;width:64px;height:64px;display:grid;place-items:center;font-size:.72rem;color:var(--muted);text-align:center;cursor:pointer}
+.upl input{display:none}
+.err{background:var(--crit-soft);color:var(--crit);border-radius:8px;padding:8px 12px;font-size:.84rem}
+.result{border-radius:14px;padding:18px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:12px}
+.result .big{font-family:var(--f-display);font-size:2.6rem;font-weight:700;line-height:1}
+.rule-card{display:flex;flex-direction:column;gap:10px}
+.rule-card li{margin-bottom:6px}
+.rule-card ul{margin:0;padding-left:18px;font-size:.86rem}
+
+/* issues board */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-size:.8rem;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--tape);color:var(--on-tape);border-color:var(--tape)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:900px){.board{grid-template-columns:1fr}}
+.col{background:var(--sunk);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.col-h{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.88rem;padding:2px 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.card .top{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.card .tt{font-weight:600;font-size:.9rem}
+.card .meta{font-size:.78rem;color:var(--muted)}
+.card .acts{display:flex;gap:6px;flex-wrap:wrap}
+.empty{font-size:.82rem;color:var(--muted);padding:10px 4px}
+
+/* review gate */
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media (max-width:420px){.rv-grid{grid-template-columns:1fr}}
+.rv{display:flex;flex-direction:column;gap:12px}
+.rv .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.conds{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:.86rem}
+.conds li{display:flex;gap:8px;align-items:baseline}
+.conds .mk{font-family:var(--f-mono);font-weight:600;width:14px;flex:none}
+.mk.y{color:var(--ok)} .mk.n{color:var(--crit)}
+.pulse{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem}
+.pulse .pd{font-family:var(--f-mono);font-size:.74rem;border-radius:5px;padding:1px 6px;background:var(--sunk)}
+.pd.lo{background:var(--crit-soft);color:var(--crit)} .pd.hi{background:var(--ok-soft);color:var(--ok)}
+.rate{display:inline-flex;gap:2px}
+.rate button{border:1px solid var(--line);background:var(--surface);border-radius:6px;width:28px;height:26px;font-family:var(--f-mono);font-size:.78rem}
+.rate button:hover{border-color:var(--star);color:var(--star)}
+.msg{width:100%;min-height:96px;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:10px;font-size:.84rem;resize:vertical}
+.playbook{background:var(--crit-soft);border-radius:8px;padding:10px 12px;font-size:.84rem}
+.playbook b{color:var(--crit)}
+.playbook ol{margin:6px 0 0;padding-left:18px}
+
+/* patterns */
+.tbl-wrap{overflow-x:auto}
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;min-width:560px;font-size:.82rem}
+.heat th{font-weight:600;color:var(--muted);text-align:left;padding:4px 6px;font-size:.76rem}
+.heat td{text-align:center;border-radius:6px;padding:8px 4px;font-family:var(--f-mono)}
+.heat td.l{text-align:left;font-family:var(--f-body);padding-left:6px}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:120px minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:.84rem}
+.bar{height:10px;background:var(--sunk);border-radius:99px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.bar .tgt{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5}
+.ins-list{display:flex;flex-direction:column;gap:10px}
+.ins-item{border:1px solid var(--line);border-radius:9px;padding:12px;font-size:.86rem}
+.ins-item b{display:block;margin-bottom:2px}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;font-size:.86rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:calc(100% - 32px)}
+#toast.on{opacity:1}
+
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:40;gap:0}
+  .brand,.side-foot,.nav .grp{display:none}
+  .nav{flex-direction:row;width:100%;justify-content:space-around}
+  .crumb{display:none}
+  .nav a{flex-direction:column;gap:1px;font-size:.6rem;padding:6px 2px;flex:1;text-align:center;position:relative;line-height:1.2}
+  .nav .badge{position:absolute;top:0;right:8px;margin:0;padding:0 5px}
+  main{padding-block:20px 100px}
+  h1{font-size:1.5rem}
+  .mob-reset{display:inline-flex!important}
+}
+.mob-reset{display:none!important}
+/* ---------- landing ---------- */
+#pick{min-height:100%;display:flex;align-items:center;justify-content:center;padding-block:40px;padding-inline:16px;background:var(--bg)}
+.pick-in{max-width:880px;width:100%;display:flex;flex-direction:column;gap:26px}
+.pick-brand{display:flex;align-items:center;gap:10px}
+.pick-brand .brand-mark{background:var(--side)}
+.pick-brand b{font-family:var(--f-display);font-weight:800;font-size:1.4rem;letter-spacing:-.02em}
+.pick-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:640px){.pick-cards{grid-template-columns:1fr}}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;text-align:left;text-decoration:none;color:var(--ink)}
+.pcard:hover{border-color:var(--tape)}
+.pcard .pic{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:1.2rem;font-weight:700}
+.pcard h2{font-size:1.25rem}
+.pcard ul{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem}
+.pcard .go{margin-top:auto;color:var(--tape);font-weight:700}
+/* ---------- crew app ---------- */
+#crew{height:100%;background:var(--bg)}
+.crew-stage{height:100%;display:flex;gap:40px;justify-content:center;align-items:center;padding-block:24px;padding-inline:16px}
+.pframe{width:390px;max-width:100%;height:min(844px,100%);border:10px solid #0B1411;border-radius:46px;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);box-shadow:0 24px 60px rgba(8,21,17,.25);flex:none}
+.crew-note{max-width:320px;display:flex;flex-direction:column;gap:12px}
+.crew-note p{margin:0;color:var(--muted)}
+.c-top{background:var(--side);color:#fff;padding:16px 16px 14px;display:flex;align-items:center;gap:10px;flex:none}
+.c-top .avatar{width:36px;height:36px}
+.c-top b{display:block;font-family:var(--f-display);font-weight:700;font-size:1rem;line-height:1.2}
+.c-top span{font-size:.76rem;color:var(--side-muted)}
+.c-lang{margin-left:auto;display:flex;background:#17392D;border-radius:8px;padding:3px}
+.c-lang button{border:0;background:none;color:var(--side-muted);font-weight:700;font-size:.74rem;padding:5px 8px;border-radius:6px}
+.c-lang button[aria-pressed="true"]{background:#fff;color:#0C6B50}
+#cscroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+#cbody{padding:16px;display:flex;flex-direction:column;gap:14px}
+.c-tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);flex:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+.c-tabs button{border:0;background:none;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.7rem;font-weight:600;color:var(--muted);position:relative}
+.c-tabs .ti{font-size:1.05rem;line-height:1}
+.c-tabs button[aria-current="page"]{color:var(--tape)}
+.c-tabs .cb{position:absolute;top:4px;left:calc(50% + 8px);background:var(--bar-crit);color:#fff;font-size:.62rem;border-radius:99px;padding:0 5px}
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ccard h3{font-size:.98rem}
+.c-hello{font-family:var(--f-display);font-weight:800;font-size:1.45rem;letter-spacing:-.02em;line-height:1.15}
+.cbtn{min-height:50px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;color:var(--ink)}
+.cbtn.go{background:var(--tape);border-color:var(--tape);color:var(--on-tape)}
+.cbtn.soft{background:var(--tape-soft);border-color:transparent;color:var(--tape)}
+.cbtn.sm{min-height:40px;font-size:.85rem;width:auto}
+.alert{border-radius:12px;padding:11px 12px;font-size:.88rem;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start}
+.alert.crit{background:var(--crit-soft)} .alert.watch{background:var(--warn-soft)}
+.alert .ai{font-weight:800;font-size:.95rem}
+.alert.crit .ai{color:var(--crit)} .alert.watch .ai{color:var(--warn)}
+.todo{display:flex;flex-direction:column}
+.todo button{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border:0;border-top:1px solid var(--line);background:none;text-align:left;font-size:.9rem}
+.todo button:first-child{border-top:0;padding-top:2px}
+.todo .tic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.citem{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.citem .lbl{font-size:.92rem;font-weight:500}
+.cseg{display:grid;grid-template-columns:1fr 1fr .7fr;gap:6px}
+.cseg button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:.86rem;color:var(--muted)}
+.cseg button[aria-pressed="true"][data-v="pass"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.cseg button[aria-pressed="true"][data-v="fail"]{background:var(--crit-soft);border-color:var(--crit);color:var(--crit)}
+.cseg button[aria-pressed="true"][data-v="na"]{background:var(--sunk);border-color:var(--muted);color:var(--ink)}
+.cgates{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.cgates button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 12px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.cgates button[aria-pressed="true"]{background:var(--tape);border-color:var(--tape);color:var(--on-tape)}
+.cgates .ok{color:var(--ok)}
+.crew-list{display:flex;flex-direction:column;gap:10px}
+.crew-list button{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left}
+.cstat{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;color:var(--muted)}
+.cstat b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.tool{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:.88rem}
+.tool:first-of-type{border-top:0}
+@media (max-width:540px){
+  .crew-stage{padding:0;display:block}
+  .pframe{width:100%;height:100%;border:0;border-radius:0;box-shadow:none}
+  .crew-note{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div id="pick" hidden></div>
+<div id="crew" hidden></div>
+<div class="app" hidden>
+  <aside class="side">
+    <div class="brand"><div class="brand-mark" aria-hidden="true"><i style="height:7px"></i><i style="height:13px"></i><i style="height:10px"></i></div><b>FieldPulse</b></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <a class="btn" href="#crew" data-act="mode" data-m="crew" style="background:#0E1F19;border-color:#1B2E27;color:#DBE7E2;justify-content:center">Open crew app ↗</a>
+      <div class="live"><span class="ld"></span><b>Live monitoring</b><span>Demo with sample projects</span></div>
+      <div class="user"><span class="avatar">AH</span><div><b>Alex Harper</b><span>Quality Director</span></div><button type="button" data-act="reset" title="Reset demo data">Reset</button></div>
+    </div>
+  </aside>
+  <div class="wrapm">
+    <header class="topbar"><div class="crumb">Quality Command Center<i>/</i><b id="crumb">Overview</b></div><div class="tb-acts"><span class="ib" aria-hidden="true">⌕</span><span class="ib" aria-hidden="true">♢<span class="nd"></span></span><button class="btn primary lg" data-act="startnew">＋ New inspection</button></div></header>
+    <main id="main"></main>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const GATES=['Prep','Prime','Finish','Walkthrough'];
+const STAGES=['Prep','Prime','Finish','Walkthrough','Closeout'];
+const CHECKLISTS={
+  Prep:[
+    {id:'protect',es:'Pisos, muebles y accesorios protegidos',t:'Floors, furniture and fixtures protected',f:'Protection missing on floors or fixtures',cat:'Protection',sev:'watch'},
+    {id:'clean',es:'Superficies limpias y desengrasadas',t:'Surfaces cleaned and degreased',f:'Surfaces not cleaned before paint',cat:'Surface prep',sev:'watch'},
+    {id:'patch',es:'Hoyos y grietas rellenados y lijados al ras',t:'Holes and cracks filled, sanded flush',f:'Patches not sanded flush',cat:'Surface prep',sev:'watch'},
+    {id:'scrape',es:'Pintura suelta raspada y bordes lijados',t:'Loose paint scraped and edges feathered',f:'Loose paint left under new coat',cat:'Surface prep',sev:'critical'},
+    {id:'caulk',es:'Juntas de molduras selladas, sin huecos',t:'Trim joints caulked, no open gaps',f:'Open gaps at trim joints',cat:'Surface prep',sev:'minor'},
+    {id:'mask',es:'Cinta recta y bien sellada en los bordes',t:'Masking straight and sealed at edges',f:'Masking lifted or crooked',cat:'Masking',sev:'watch'}],
+  Prime:[
+    {id:'spot',es:'Cada parche con primer',t:'Every patch spot-primed',f:'Patch not primed (will flash through)',cat:'Coverage',sev:'watch'},
+    {id:'stain',es:'Bloqueador de manchas en marcas de agua y nudos',t:'Stain blocker on water marks and knots',f:'Stain not sealed, will bleed through',cat:'Coverage',sev:'critical'},
+    {id:'holid',es:'Cobertura completa, sin fallas',t:'Full coverage, no holidays or misses',f:'Missed spots in primer',cat:'Coverage',sev:'watch'},
+    {id:'cure',es:'Primer seco según la ficha técnica antes de la capa final',t:'Primer dry per data sheet before topcoat',f:'Topcoat applied before primer cured',cat:'Cure',sev:'critical'}],
+  Finish:[
+    {id:'sheen',es:'Brillo uniforme, sin manchas',t:'Uniform sheen, no flashing',f:'Sheen flashing on wall',cat:'Finish',sev:'watch'},
+    {id:'cut',es:'Líneas de corte limpias en techos y molduras',t:'Clean cut lines at ceilings and trim',f:'Wavy cut line at ceiling or trim',cat:'Cut lines',sev:'watch'},
+    {id:'runs',es:'Sin chorreados, colgados ni gotas',t:'No runs, sags or drips',f:'Runs or sags in finish coat',cat:'Finish',sev:'watch'},
+    {id:'lap',es:'Sin marcas de traslape del rodillo',t:'No roller lap marks',f:'Roller lap marks visible',cat:'Finish',sev:'minor'},
+    {id:'over',es:'Sin overspray en vidrios, herrajes o jardín',t:'No overspray on glass, hardware, landscaping',f:'Overspray on glass or hardware',cat:'Overspray',sev:'critical'},
+    {id:'color',es:'El color coincide con la muestra aprobada',t:'Color matches the approved sample',f:'Color does not match approved sample',cat:'Color',sev:'critical'}],
+  Walkthrough:[
+    {id:'raking',es:'Revisión con luz rasante en cada pared',t:'Raking-light pass on every wall',f:'Defects visible under raking light',cat:'Finish',sev:'watch'},
+    {id:'halo',es:'Retoques parejos, sin halo',t:'Touch-ups blend, no halo',f:'Touch-up halo visible',cat:'Touch-up',sev:'watch'},
+    {id:'tape',es:'Cinta y plástico retirados, sin residuos',t:'Tape and plastic removed, no residue',f:'Tape residue left behind',cat:'Cleanliness',sev:'watch'},
+    {id:'cleanup',es:'Pisos, ventanas y accesorios limpios',t:'Floors, windows and fixtures clean',f:'Paint drips or dust left on site',cat:'Cleanliness',sev:'watch'},
+    {id:'return',es:'Muebles y tapas de enchufes en su lugar',t:'Furniture and switch plates put back',f:'Items not returned to place',cat:'Cleanliness',sev:'minor'},
+    {id:'left',es:'Pintura sobrante etiquetada con color y cuarto',t:'Leftover paint labeled with color and room',f:'Leftover paint unlabeled',cat:'Closeout',sev:'minor'},
+    {id:'signoff',es:'El cliente revisó el trabajo y firmó',t:'Client walked the job and signed off',f:'Client walkthrough not completed',cat:'Closeout',sev:'critical'}]
+};
+const SEV_PEN={critical:.5,watch:.2,minor:.08};
+const HOUR=3600e3, DAY=24*HOUR;
+
+function seed(){
+  const now=Date.now();
+  const hist=(p,crew,cat,title,days)=>({p,crew,cat,title,sev:'watch',status:'verified',area:'',src:'Inspection',at:now-days*DAY,hist:true});
+  return {
+    projects:[
+      {id:'hh',name:'Harbor House',client:'Karen Brennan',city:'Plano',kind:'Interior',scope:'Whole-home interior repaint',crew:'C',stage:3,gates:{Prep:'pass',Prime:'pass',Finish:'pass',Walkthrough:'pending'},pulse:[5,5,5],updateDays:0,slip:0,moisture:{v:null,limit:15},wx:null,reviewSent:false,handled:[]},
+      {id:'ml',name:'Marina Lofts',client:'Tom Okafor (HOA board)',city:'Dallas',kind:'Exterior',scope:'Stucco and trim, 3 buildings',crew:'A',stage:2,gates:{Prep:'pass',Prime:'pass',Finish:'pending',Walkthrough:'pending'},pulse:[5,4,4],updateDays:1,slip:1,moisture:{v:11,limit:15},wx:{low:54,spread:4,rainHrs:9,cureHrs:12},reviewSent:false,handled:[]},
+      {id:'c8',name:'Cedar & 8th',client:'Priya Shah',city:'Richardson',kind:'Interior',scope:'Kitchen and hallway renovation',crew:'B',stage:0,gates:{Prep:'fail',Prime:'pending',Finish:'pending',Walkthrough:'pending'},pulse:[4,3],updateDays:4,slip:2,moisture:{v:19,limit:15},wx:null,reviewSent:false,handled:[]},
+      {id:'nh',name:'The Nook Hotel',client:'Dana Whitfield (GM)',city:'Frisco',kind:'Interior',scope:'Guest rooms, floors 3 to 5',crew:'D',stage:2,gates:{Prep:'pass',Prime:'pending',Finish:'pending',Walkthrough:'pending'},pulse:[5,5],updateDays:2,slip:0,moisture:{v:9,limit:15},wx:null,reviewSent:false,handled:[]},
+      {id:'ar',name:'Alvarez Residence',client:'Rosa Alvarez',city:'McKinney',kind:'Interior',scope:'Kitchen cabinet refinish',crew:'A',stage:4,gates:{Prep:'pass',Prime:'pass',Finish:'pass',Walkthrough:'pass'},pulse:[5,5,5],updateDays:0,slip:0,moisture:{v:null,limit:15},wx:null,reviewSent:false,handled:[]}
+    ],
+    issues:[
+      {id:1,p:'c8',title:'Moisture 19% at north wall trim (limit 15%)',area:'Level 2 corridor',cat:'Moisture',sev:'critical',crew:'B',status:'open',at:now-3*HOUR,src:'Reading'},
+      {id:2,p:'ml',title:'Overspray on two window frames',area:'Building C, unit 3B',cat:'Overspray',sev:'critical',crew:'A',status:'open',at:now-5*HOUR,src:'Inspection'},
+      {id:3,p:'ml',title:'Roller lap marks on stairwell stucco',area:'Building B stairwell',cat:'Finish',sev:'watch',crew:'A',status:'fixed',at:now-20*HOUR,src:'Inspection'},
+      {id:4,p:'hh',title:'Final clean missed in primary bath',area:'Primary bath',cat:'Cleanliness',sev:'watch',crew:'C',status:'open',at:now-2*HOUR,src:'Inspection'},
+      {id:5,p:'nh',title:'Touch-up halo above entry trim',area:'Room 318',cat:'Touch-up',sev:'watch',crew:'D',status:'open',at:now-52*HOUR,src:'Client'},
+      {id:6,p:'c8',title:'Masking lifted at kitchen backsplash',area:'Kitchen',cat:'Masking',sev:'watch',crew:'B',status:'open',at:now-26*HOUR,src:'Inspection'},
+      {id:7,p:'c8',title:'Wavy cut line at hallway ceiling',area:'Hallway',cat:'Cut lines',sev:'minor',crew:'B',status:'open',at:now-6*HOUR,src:'Inspection'},
+      hist('c8','B','Cut lines','Cut line at ceiling',6),hist('c8','B','Cut lines','Cut line at crown',11),hist('nh','B','Cut lines','Cut line at ceiling',19),
+      hist('c8','B','Masking','Masking bled',14),hist('nh','B','Cleanliness','Drips on tile',22),
+      hist('ml','A','Overspray','Overspray on railing',9),hist('ar','A','Overspray','Overspray on hinge',17),hist('ar','A','Finish','Brush marks on doors',25),
+      hist('hh','C','Cleanliness','Tape residue',8),hist('hh','C','Cleanliness','Dust on sills',15),hist('hh','C','Touch-up','Halo on hall wall',20),
+      hist('nh','D','Touch-up','Halo on room 304 wall',5),hist('nh','D','Touch-up','Halo near outlet',13),hist('nh','D','Cut lines','Cut line at trim',24)
+    ].map((x,i)=>x.id?x:{...x,id:100+i}),
+    crews:{A:{name:'Crew A',lead:'Diego P.',checks:18,fp:15},B:{name:'Crew B',lead:'Sam K.',checks:15,fp:9},C:{name:'Crew C',lead:'Maya R.',checks:21,fp:19},D:{name:'Crew D',lead:'Luis M.',checks:16,fp:13}},
+    feed:[
+      {k:'ok',ic:'✓',t:'Room 412 Finish check passed',s:'The Nook Hotel · Luis M.',at:now-8*60e3},
+      {k:'crit',ic:'!',t:'Moisture reading 19% flagged automatically',s:'Cedar & 8th · Sam K.',at:now-34*60e3},
+      {k:'info',ic:'↗',t:'Photo update sent to client',s:'Marina Lofts · Alex H.',at:now-52*60e3},
+      {k:'watch',ic:'★',t:'Client check-in: 3 of 5',s:'Cedar & 8th · Priya Shah',at:now-5*HOUR}
+    ],
+    nextId:200,
+    loss:{
+      materials:[
+        {p:'ml',product:'Exterior acrylic, satin',est:96,bought:118,returned:4,left:6,price:58},
+        {p:'nh',product:'Interior eggshell, guest rooms',est:140,bought:171,returned:0,left:3,price:46},
+        {p:'hh',product:'Interior matte and trim enamel',est:38,bought:40,returned:1,left:3,price:52},
+        {p:'c8',product:'Interior eggshell and primer',est:22,bought:24,returned:0,left:2,price:49},
+        {p:'ar',product:'Cabinet urethane enamel',est:6,bought:7,returned:0,left:1,price:88}],
+      flags:[
+        {id:'o1',type:'order',p:'ml',sev:'critical',t:'Order sheen doesn\'t match the signed color schedule',m:'Order: SW 7036 Accessible Beige, Flat, 20 gal for trim. Signed schedule says Satin on trim.',amt:1160,fix:'Fix the order before it ships'},
+        {id:'o2',type:'order',p:'nh',sev:'watch',t:'Work order room count differs from the estimate',m:'Floor 5 work order lists 22 rooms. The signed estimate has 24.',amt:880,fix:'Confirm the room list with the GM'},
+        {id:'o3',type:'order',p:'c8',sev:'watch',t:'No stain-blocking primer on the material order',m:'Water marks were logged at Prep, but the order only has standard primer.',amt:640,fix:'Add stain blocker to the order'},
+        {id:'pu1',type:'purchase',p:'nh',sev:'critical',t:'Saturday 6:42 PM purchase, 12 gal eggshell',m:'Store is 38 miles from the job site, outside crew hours, and not on the material list. Crew D supplier account.',amt:552,fix:'Ask the crew lead for the receipt and where the paint went'},
+        {id:'pu2',type:'purchase',p:'ml',sev:'watch',t:'Same caulk case bought twice in one day',m:'Two 5-gal caulk cases, 3 hours apart, same store. Possible duplicate. Crew A supplier account.',amt:186,fix:'Check whether one can be returned'},
+        {id:'t1',type:'time',p:'c8',sev:'critical',t:'Clocked 28.5 h, on site 22.0 h this week',m:'Crew B (3 people). Gap of 6.5 h between timesheet and site check-ins.',amt:293,hrs:6.5,fix:'Review the timesheet with Sam K.'},
+        {id:'t2',type:'time',p:'nh',sev:'watch',t:'Clocked 41.0 h, on site 39.5 h this week',m:'Crew D. Small gap, likely the supply run on Tuesday.',amt:68,hrs:1.5,fix:'Confirm the supply run'}
+      ],
+      status:{}
+    },
+    tools:[
+      {id:'S-104',name:'Airless sprayer',es:'Pistola airless',crew:'A',last:now-9*DAY,value:2900},
+      {id:'T-03',name:'Random-orbit sander',es:'Lijadora orbital',crew:'A',last:now-20*HOUR,value:650},
+      {id:'S-110',name:'Airless sprayer',es:'Pistola airless',crew:'B',last:now-HOUR,value:2900},
+      {id:'M-02',name:'Moisture meter',es:'Medidor de humedad',crew:'B',last:now-2*HOUR,value:380},
+      {id:'L-12',name:'28 ft extension ladder',es:'Escalera de extensión 28 ft',crew:'C',last:now-3*HOUR,value:420},
+      {id:'T-07',name:'Random-orbit sander',es:'Lijadora orbital',crew:'D',last:now-6*DAY,value:650}],
+    clock:{A:{in:now-3*HOUR},B:{in:null},C:{in:now-75*60e3},D:{in:now-2*HOUR}},
+    me:null
+  };
+}
+let S; const KEY='dk-fieldpulse-v3';
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!S.projects) S=seed();
+const UI={mode:'pick',ctab:'today',lang:(()=>{try{return localStorage.getItem('fp-lang')||'en'}catch(e){return 'en'}})(),fixPhotos:{},buy:null,view:'today',open:{},filter:'all',draft:null,result:null,msg:{}};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const proj=id=>S.projects.find(p=>p.id===id);
+const crewOf=k=>S.crews[k];
+const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/60e3));if(m<1)return'now';if(m<60)return m+'m';const h=Math.round(m/60);return h<48?h+'h':Math.round(h/24)+'d'};
+const ageH=t=>Math.round((Date.now()-t)/HOUR);
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const openIssues=pid=>S.issues.filter(i=>!i.hist&&i.status!=='verified'&&(!pid||i.p===pid));
+const starHTML=v=>`<span class="fc"><span class="stars" style="--v:${(v/5*100).toFixed(1)}%" aria-hidden="true"></span><b>${v.toFixed(1)}</b></span>`;
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2400)}
+
+/* ---------- early-warning rules ---------- */
+function warnings(){
+  const out=[];
+  const add=(p,key,sev,t,m,fix,act)=>{const id=p.id+':'+key;if(!p.handled.includes(id))out.push({id,p,sev,t,m,fix,act})};
+  S.projects.forEach(p=>{
+    if(p.stage>=4)return;
+    const stageName=STAGES[p.stage];
+    if(p.wx){
+      if(p.stage>=1&&p.stage<=2&&p.wx.rainHrs<p.wx.cureHrs)
+        add(p,'rain','critical',`Rain in ${p.wx.rainHrs}h, coating needs ${p.wx.cureHrs}h to cure`,`Exterior ${stageName.toLowerCase()} coat is scheduled today. Rain on uncured paint causes surfactant streaks and washout.`,'Move today\'s coat to after the rain window');
+      if(p.wx.spread<5)
+        add(p,'dew','watch',`Surface only ${p.wx.spread}°F above dew point at 7 AM`,'Coatings need at least 5°F spread or moisture condenses under the film.','Hold start until about 9:30 AM, then re-read');
+      if(p.wx.low<50)
+        add(p,'cold','watch',`Overnight low ${p.wx.low}°F, below the 50°F product minimum`,'Latex may not coalesce and will chalk early.','Switch to low-temp product or stop by 2 PM');
+    }
+    if(p.moisture.v!=null&&p.moisture.v>p.moisture.limit)
+      add(p,'moist','critical',`Moisture ${p.moisture.v}% on substrate, limit ${p.moisture.limit}%`,'Painting over wet wood leads to peeling and blistering within months.','Hold paint, find the source, re-read in 24h');
+    if(p.updateDays>=3)
+      add(p,'comm','watch',`No client update in ${p.updateDays} days`,'Silence is the top predictor of a lower review, even when the work is fine.','Send a photo update today','update');
+    const last=p.pulse[p.pulse.length-1];
+    if(last!=null&&last<=3)
+      add(p,'pulse','critical',`Client rated the last check-in ${last} of 5`,'Unhappy mid-project clients rarely leave 5 stars unless someone calls them.','PM calls the client today');
+    const skipped=GATES.slice(0,Math.min(p.stage,4)).find(g=>p.gates[g]!=='pass'&&p.gates[g]!=='fail');
+    if(skipped)
+      add(p,'gate-'+skipped,'critical',`${stageName} work started without a passed ${skipped} check`,`Defects from ${skipped.toLowerCase()} get sealed under later coats and are expensive to fix.`,`Run a ${skipped} check now`,'check:'+skipped);
+    openIssues(p.id).filter(i=>i.status==='open'&&ageH(i.at)>48).forEach(i=>
+      add(p,'age'+i.id,'watch',`"${i.title}" open ${ageH(i.at)}h`,`${i.area}. Items open over 48h usually get noticed by the client first.`,`Escalate to ${crewOf(i.crew).lead}`,'issues'));
+  });
+  // crew patterns
+  const since=Date.now()-30*DAY;
+  Object.keys(S.crews).forEach(k=>{
+    const counts={};
+    S.issues.filter(i=>i.crew===k&&i.at>since).forEach(i=>counts[i.cat]=(counts[i.cat]||0)+1);
+    Object.entries(counts).filter(([,n])=>n>=3).forEach(([cat,n])=>{
+      const p=S.projects.find(x=>x.crew===k&&x.stage<4);
+      if(p)add(p,'crew'+cat,'watch',`${crewOf(k).name} has ${n} ${cat.toLowerCase()} defects in 30 days`,`Repeat pattern on ${crewOf(k).lead}'s crew. Likely to show up on ${p.name}.`,`Lead walks the next ${cat==='Cut lines'?'ceiling line':cat.toLowerCase()+' task'} with them`,'patterns');
+    });
+  });
+  const o={critical:0,watch:1};
+  return out.sort((a,b)=>o[a.sev]-o[b.sev]);
+}
+
+/* ---------- 5-star forecast ---------- */
+function forecast(p,W){
+  W=W||warnings();
+  const d=[];
+  const iss=openIssues(p.id);
+  ['critical','watch','minor'].forEach(sev=>{
+    const open=iss.filter(i=>i.sev===sev&&i.status==='open').length;
+    if(open)d.push({l:`${open} open ${sev} issue${open>1?'s':''}`,v:-SEV_PEN[sev]*open});
+  });
+  const fixed=iss.filter(i=>i.status==='fixed').length;
+  if(fixed)d.push({l:`${fixed} fix${fixed>1?'es':''} not yet verified`,v:-.05*fixed});
+  const pa=avg(p.pulse);
+  if(p.pulse.length&&pa<4.5)d.push({l:`Client check-ins average ${pa.toFixed(1)}`,v:-(4.5-pa)*.6});
+  if(p.updateDays>2)d.push({l:`${p.updateDays} days since last client update`,v:-Math.min(.4,.1*(p.updateDays-2))});
+  if(p.slip)d.push({l:`${p.slip} day${p.slip>1?'s':''} behind schedule`,v:-Math.min(.4,.08*p.slip)});
+  const pw=W.filter(w=>w.p.id===p.id&&!/^age/.test(w.id.split(':')[1]));
+  const wc=pw.filter(w=>w.sev==='critical').length, ww=pw.length-wc;
+  if(wc)d.push({l:`${wc} unhandled critical warning${wc>1?'s':''}`,v:-.15*wc});
+  if(ww)d.push({l:`${ww} unhandled watch warning${ww>1?'s':''}`,v:-.05*ww});
+  const score=Math.max(1,Math.min(5,5+d.reduce((s,x)=>s+x.v,0)));
+  d.sort((a,b)=>a.v-b.v);
+  return {score,d};
+}
+
+function firstPass(){let c=0,f=0;Object.values(S.crews).forEach(x=>{c+=x.checks;f+=x.fp});return c?f/c*100:0}
+
+/* ---------- nav ---------- */
+const VIEWS=[['today','⌂','Overview'],['check','✓','Inspections'],['issues','!','Issues'],['review','☆','Review readiness'],['patterns','◇','Quality insights'],['loss','$','Loss prevention']];
+function renderNav(){
+  const open=openIssues().filter(i=>i.status==='open').length;
+  const crumb=$('#crumb');if(crumb)crumb.textContent=VIEWS.find(v=>v[0]===UI.view)[2];
+  $('#nav').innerHTML=VIEWS.map(([k,ic,l],i)=>(i===0?'<div class="grp">Workspace</div>':i===3?'<div class="grp">Intelligence</div>':'')+`<a href="#${k}" data-view="${k}" ${UI.view===k?'aria-current="page"':''}><span class="ico">${ic}</span>${l}${k==='issues'&&open?`<span class="badge">${open}</span>`:''}${k==='loss'&&lossNumbers().openFlags.length?`<span class="badge">${lossNumbers().openFlags.length}</span>`:''}</a>`).join('');
+}
+
+/* ---------- TODAY ---------- */
+function viewToday(){
+  const W=warnings();
+  const active=S.projects.filter(p=>p.stage<4||!p.reviewSent);
+  const fcs=S.projects.map(p=>({p,f:forecast(p,W)}));
+  const avgF=avg(fcs.map(x=>x.f.score));
+  const iss=openIssues().filter(i=>i.status==='open');
+  const crit=iss.filter(i=>i.sev==='critical').length;
+  const fp=firstPass();
+  const atRisk=fcs.filter(x=>x.f.score<4.5).length;
+  return `
+  <div class="head"><div><div class="eyebrow date">Thursday, October 23</div><h1>Good morning, Alex.</h1><p>Here’s what needs attention before it reaches your customer. ${W.filter(w=>w.sev==='critical').length} critical problems are predicted today.</p></div><span class="sample">Sample data</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="kt"><span class="tile g">★</span><span class="delta ${avgF>=4.5?'up':'dn'}">${avgF>=4.5?'↗ on track':'↘ below 4.5'}</span></div><span class="eyebrow">Avg. 5-star forecast</span><span class="v">${avgF.toFixed(2)}<small>★</small></span><span class="s">${atRisk} of ${S.projects.length} projects below 4.5</span></div>
+    <div class="kpi"><div class="kt"><span class="tile b">✓</span><span class="delta ${fp>=90?'up':'dn'}">${fp>=90?'↗ at target':'↘ '+(90-fp).toFixed(1)+'% to go'}</span></div><span class="eyebrow">First-pass quality</span><span class="v">${fp.toFixed(1)}<small>%</small></span><span class="s">Checks passed with zero fixes · target 90%</span></div>
+    <div class="kpi"><div class="kt"><span class="tile a">!</span><span class="delta ${crit?'dn':'up'}">${crit} critical</span></div><span class="eyebrow">Open issues</span><span class="v">${iss.length}</span><span class="s">${crit} critical · ${iss.filter(i=>ageH(i.at)>48).length} older than 48h</span></div>
+    <div class="kpi"><div class="kt"><span class="tile v">◷</span><span class="delta">predicted</span></div><span class="eyebrow">Early warnings</span><span class="v">${W.length}</span><span class="s">Weather, readings, client signals, crew patterns</span></div>
+  </div>
+  <div class="grid g-main">
+    <div class="grid" style="align-content:start">
+      <section class="panel">
+        <div class="panel-h"><div><h2>Needs attention</h2><p>Predicted problems, prioritized by customer impact. Each one lowers the project's forecast until it's handled.</p></div></div>
+        <div class="warn-list">${W.length?W.map(w=>`
+          <div class="wrow"><span class="dot ${w.sev}"></span>
+            <div><div class="t">${esc(w.t)}</div><div class="m"><b>${esc(w.p.name)}</b> · ${esc(w.m)}</div><div class="fix">Next step: <b>${esc(w.fix)}</b></div></div>
+            <div class="acts">${w.act&&w.act.startsWith('check:')?`<button class="btn sm primary" data-act="startcheck" data-p="${w.p.id}" data-g="${w.act.slice(6)}">Start check</button>`:''}${w.act==='update'?`<button class="btn sm primary" data-act="sendupdate" data-p="${w.p.id}">Log update sent</button>`:''}${w.act==='issues'?`<button class="btn sm" data-go="issues">View issue</button>`:''}${w.act==='patterns'?`<button class="btn sm" data-go="patterns">See pattern</button>`:''}<button class="btn sm" data-act="handle" data-id="${w.id}">Mark handled</button></div>
+          </div>`).join(''):'<div class="empty">No warnings right now. Every project is clear.</div>'}</div>
+      </section>
+      <section class="panel">
+        <div class="panel-h"><div><h2>Active projects</h2><p>Forecast is the star rating we'd expect if the client reviewed today. Click a row to see why.</p></div></div>
+        ${fcs.map(({p,f})=>{
+          const top=f.d[0];
+          return `<div class="prow" data-act="why" data-p="${p.id}" style="cursor:pointer">
+            <div class="pname"><b>${esc(p.name)}</b><span>${esc(p.scope)} · ${esc(p.city)}</span></div>
+            <div class="gcol">${gateBar(p)}<div class="gate-l">${p.stage>=4?'Closeout':'Now: '+STAGES[p.stage]} · ${crewOf(p.crew).name}</div></div>
+            <div class="fcol">${starHTML(f.score)}<div class="driver">${top?esc(top.l):'Nothing pulling it down'}</div></div>
+            <span class="pill ${f.score>=4.7?'ok':f.score>=4.2?'warn':'crit'}">${f.score>=4.7?'On track':f.score>=4.2?'Watch':'At risk'}</span>
+            ${UI.open[p.id]?`<div class="why"><table>${f.d.length?f.d.map(x=>`<tr><td>${esc(x.l)}</td><td class="neg">${x.v.toFixed(2)}</td></tr>`).join(''):'<tr><td>No open issues, warnings or client concerns</td><td></td></tr>'}<tr><td><b>Forecast (starts at 5.00)</b></td><td><b>${f.score.toFixed(2)}</b></td></tr></table></div>`:''}
+          </div>`}).join('')}
+      </section>
+    </div>
+    <div class="grid" style="align-content:start">
+    <section class="panel">
+      <div class="panel-h"><div><h2>Crews in the field</h2><p>From the crew app: clock-ins checked against the job site.</p></div><a class="btn sm" href="#crew" data-act="mode" data-m="crew">Open crew app</a></div>
+      <div class="feed">${Object.entries(S.crews).map(([k,c])=>{const ci=S.clock[k]&&S.clock[k].in,p=activeProject(k);return `<div class="fi"><span class="ic ${ci?'ok':'watch'}">${k}</span><div><div><b>${esc(c.name)}</b> · ${esc(c.lead)}</div><div class="muted" style="font-size:.78rem">${p?esc(p.name):'No active job'} · ${ci?'Clocked in '+clockTime(ci)+', on site':'Not clocked in'}</div></div><span class="when">${ci?((Date.now()-ci)/HOUR).toFixed(1)+' h':''}</span></div>`}).join('')}</div>
+    </section>
+    <section class="panel">
+      <div class="panel-h"><div><h2>Live field activity</h2><p>Latest checks, readings and client signals.</p></div></div>
+      <div class="feed">${S.feed.slice(0,12).map(f=>`<div class="fi"><span class="ic ${f.k}">${f.ic}</span><div><div>${esc(f.t)}</div><div class="muted" style="font-size:.78rem">${esc(f.s)}</div></div><span class="when">${ago(f.at)}</span></div>`).join('')}</div>
+    </section>
+    </div>
+  </div>`;
+}
+function gateBar(p){
+  return `<div class="gates" title="Prep · Prime · Finish · Walkthrough">${GATES.map((g,i)=>{const s=p.gates[g];return `<i class="${s==='pass'?'pass':s==='fail'?'fail':i===p.stage?'now':''}"></i>`}).join('')}</div>`;
+}
+
+/* ---------- FIELD CHECK ---------- */
+function nextGate(p){return GATES.find(g=>p.gates[g]!=='pass')||'Walkthrough'}
+function readingsFor(p,g){
+  const r=[];
+  if(g==='Prep')r.push('moisture');
+  if(g==='Finish')r.push('wft');
+  if(p.kind==='Exterior'&&g!=='Walkthrough')r.push('dew');
+  return r;
+}
+function newDraft(pid,gate){const p=proj(pid);UI.draft={pid,gate:gate||nextGate(p),marks:{},r:{moisture:'',surf:'',dew:'',wft:''},area:'',photos:[],err:''};UI.result=null}
+function evalReading(p,k,r){
+  if(k==='moisture'){const v=+r.moisture,l=p.moisture.limit;return{k,label:`Moisture ${v}% (limit ${l}%)`,pass:v<=l,fail:`Moisture ${v}% over the ${l}% limit`,sev:'critical',cat:'Moisture'}}
+  if(k==='dew'){const s=+(r.surf-r.dew).toFixed(1);return{k,label:`Dew-point spread ${s}°F (need 5°F)`,pass:s>=5,fail:`Surface only ${s}°F above dew point`,sev:'critical',cat:'Conditions'}}
+  if(k==='wft'){const v=+r.wft;return{k,label:`Wet film ${v} mils (target 4)`,pass:v>=4,fail:`Wet film ${v} mils, under the 4 mil target`,sev:'watch',cat:'Film build'}}
+}
+function readingPill(k){
+  const d=UI.draft,p=proj(d.pid),r=d.r;
+  const ready=k==='dew'?(r.surf!==''&&r.dew!==''):r[k]!=='';
+  if(!ready)return `<span class="pill info">${tr('notTaken')}</span>`;
+  const e=evalReading(p,k,r);
+  return `<span class="pill ${e.pass?'ok':'crit'}">${e.pass?tr('inSpec'):tr('outSpec')}</span>`;
+}
+function viewCheck(){
+  if(!UI.draft&&!UI.result)newDraft(S.projects.find(p=>p.stage<4).id);
+  const side=`<aside class="panel rule-card">
+    <h2>How a check works</h2>
+    <ul>
+      <li>Each project moves through four gates: <b>Prep, Prime, Finish, Walkthrough</b>. The next stage shouldn't start until the gate passes.</li>
+      <li>Readings are judged automatically: substrate moisture, dew-point spread for exterior work, and wet-film thickness.</li>
+      <li>Every item marked <b>Fix</b> becomes an issue assigned to the crew, with its severity already set.</li>
+      <li>A gate passes when nothing critical or watch-level fails. Minor items become punch-list entries.</li>
+      <li>Results update the 5-star forecast and the crew's first-pass rate right away.</li>
+    </ul>
+    <p class="muted" style="margin:0;font-size:.82rem">In the field this runs on a phone. Photos attach to the issue so the crew sees exactly where.</p>
+  </aside>`;
+  if(UI.result){const R=UI.result;return `
+    <div class="head"><div><div class="eyebrow">Inspections</div><h1>${esc(R.gate)} inspection submitted</h1><p>${esc(R.pname)} · ${esc(R.area||'Whole job')}</p></div></div>
+    <div class="check-wrap"><div class="result">
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <div><div class="eyebrow">First-pass score</div><div class="big num">${R.fp}%</div></div>
+        <span class="pill ${R.gatePass?'ok':'crit'}" style="font-size:.8rem">${R.gatePass?'Gate passed':'Gate failed, fix and recheck'}</span>
+      </div>
+      <div class="row" style="align-items:center"><div><div class="eyebrow">Forecast</div>${starHTML(R.before)} → ${starHTML(R.after)}</div><div><div class="eyebrow">Issues created</div><b class="num">${R.fails.length}</b></div></div>
+      ${R.fails.length?`<div class="items">${R.fails.map(f=>`<div class="item"><div class="lbl">${esc(f.fail)}<small>${esc(f.cat)} · assigned to ${esc(R.crew)}</small></div><span class="pill ${f.sev}">${f.sev}</span></div>`).join('')}</div>`:'<div class="muted">Everything passed. Nice work.</div>'}
+      ${R.photos.length?`<div class="photos">${R.photos.map(u=>`<img src="${u}" alt="Check photo">`).join('')}</div>`:''}
+      <div class="row" style="flex-wrap:wrap"><button class="btn primary" data-act="newcheck" style="flex:0 0 auto">Start another inspection</button><button class="btn" data-go="issues" style="flex:0 0 auto">Open issues board</button><button class="btn" data-go="review" style="flex:0 0 auto">Review readiness</button></div>
+    </div>${side}</div>`;}
+  const d=UI.draft,p=proj(d.pid),items=CHECKLISTS[d.gate],rk=readingsFor(p,d.gate);
+  const marked=items.filter(i=>d.marks[i.id]).length;
+  return `
+  <div class="head"><div><div class="eyebrow">Inspections</div><h1>New inspection</h1><p>A stage-gate inspection the crew lead or PM completes on site.</p></div><span class="sample">Sample data</span></div>
+  <div class="check-wrap">
+  <form class="phone" id="checkform" novalidate>
+    <div class="row">
+      <label class="f">Project<select class="inp" id="f-proj">${S.projects.map(x=>`<option value="${x.id}" ${x.id===d.pid?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>
+      <label class="f">Area or room<input class="inp" id="f-area" placeholder="e.g. Unit 3B, west wall" value="${esc(d.area)}"></label>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Gate · ${esc(p.kind)} · ${crewOf(p.crew).name} (${esc(crewOf(p.crew).lead)})</div>
+      <div class="gate-tabs">${GATES.map(g=>`<button type="button" data-act="gate" data-g="${g}" aria-pressed="${g===d.gate}">${g}<span class="st">${p.gates[g]==='pass'?'passed':p.gates[g]==='fail'?'failed':'open'}</span></button>`).join('')}</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="eyebrow">Checklist · ${marked}/${items.length} marked</span><button type="button" class="btn sm" data-act="allpass">Mark all pass</button></div>
+      <div class="items">${items.map(i=>`<div class="item"><div class="lbl">${esc(i.t)}<small>${esc(i.cat)} · fails as ${i.sev}</small></div>
+        <div class="seg" role="group" aria-label="${esc(i.t)}">${[['pass','Pass'],['fail','Fix'],['na','N/A']].map(([v,l])=>`<button type="button" data-act="mark" data-i="${i.id}" data-v="${v}" aria-pressed="${d.marks[i.id]===v}">${l}</button>`).join('')}</div></div>`).join('')}</div>
+    </div>
+    ${rk.length?`<div class="readings"><span class="eyebrow">Readings</span>${rk.map(k=>k==='moisture'?`
+      <div class="rd"><div class="ins"><label class="f">Moisture meter (%) · limit ${p.moisture.limit}%<input class="inp num" id="r-moisture" inputmode="decimal" type="number" step="0.1" value="${esc(d.r.moisture)}" placeholder="e.g. 12"></label></div><span id="p-moisture">${readingPill('moisture')}</span></div>`
+      :k==='dew'?`<div class="rd"><div class="ins"><label class="f">Surface temp (°F)<input class="inp num" id="r-surf" type="number" step="0.1" inputmode="decimal" value="${esc(d.r.surf)}" placeholder="e.g. 61"></label><label class="f">Dew point (°F)<input class="inp num" id="r-dew" type="number" step="0.1" inputmode="decimal" value="${esc(d.r.dew)}" placeholder="e.g. 54"></label></div><span id="p-dew">${readingPill('dew')}</span></div>`
+      :`<div class="rd"><div class="ins"><label class="f">Wet film gauge (mils) · target 4<input class="inp num" id="r-wft" type="number" step="0.5" inputmode="decimal" value="${esc(d.r.wft)}" placeholder="e.g. 4"></label></div><span id="p-wft">${readingPill('wft')}</span></div>`).join('')}</div>`:''}
+    <div><div class="eyebrow" style="margin-bottom:6px">Photos</div><div class="photos">${d.photos.map(u=>`<img src="${u}" alt="Check photo">`).join('')}<label class="upl">+ Add<br>photo<input type="file" id="f-photo" accept="image/*" multiple></label></div></div>
+    ${d.err?`<div class="err">${esc(d.err)}</div>`:''}
+    <button class="btn primary" type="submit" style="justify-content:center;padding:11px">Submit ${esc(d.gate)} check</button>
+  </form>${side}</div>`;
+}
+function submitCheck(){
+  const d=UI.draft,p=proj(d.pid),items=CHECKLISTS[d.gate],rk=readingsFor(p,d.gate);
+  const miss=items.filter(i=>!d.marks[i.id]).length;
+  const missR=rk.filter(k=>k==='dew'?(d.r.surf===''||d.r.dew===''):d.r[k]==='');
+  if(miss||missR.length){const parts=[];if(miss)parts.push(`${miss} checklist item${miss>1?'s':''} still unmarked`);if(missR.length)parts.push(`${missR.length} reading${missR.length>1?'s':''} missing`);d.err=UI.mode==='crew'?tr('missing').replace('{n}',miss+missR.length):parts.join(' and ')+'. Complete them to submit.';render();return}
+  const before=forecast(p).score;
+  const res=items.filter(i=>d.marks[i.id]!=='na').map(i=>({item:i.id,pass:d.marks[i.id]==='pass',fail:i.f,sev:i.sev,cat:i.cat}));
+  rk.forEach(k=>res.push(evalReading(p,k,d.r)));
+  const fails=res.filter(r=>!r.pass);
+  const fp=res.length?Math.round((res.length-fails.length)/res.length*100):100;
+  fails.forEach(f=>S.issues.push({id:S.nextId++,item:f.item,p:p.id,title:f.fail,area:d.area||d.gate+' check',cat:f.cat,sev:f.sev,crew:p.crew,status:'open',at:Date.now(),src:'Inspection'}));
+  const gatePass=!fails.some(f=>f.sev!=='minor');
+  p.gates[d.gate]=gatePass?'pass':'fail';
+  const gi=GATES.indexOf(d.gate);
+  if(gatePass&&p.stage<=gi)p.stage=gi+1;
+  if(rk.includes('moisture'))p.moisture.v=+d.r.moisture;
+  if(rk.includes('dew')&&p.wx)p.wx.spread=+(d.r.surf-d.r.dew).toFixed(1);
+  const c=crewOf(p.crew);c.checks++;
+  if(!fails.length)c.fp++;
+  S.feed.unshift({k:gatePass?'ok':'crit',ic:gatePass?'✓':'!',t:`${d.gate} check ${gatePass?'passed':'failed'} · ${fp}% first pass`,s:`${p.name} · ${fails.length} issue${fails.length===1?'':'s'} created${UI.mode==='crew'?' · crew app, '+c.lead:''}`,at:Date.now()});
+  save();
+  UI.result={gate:d.gate,pname:p.name,area:d.area,fp,gatePass,fails,crew:c.name,before,after:forecast(p).score,photos:d.photos};
+  UI.draft=null;render();window.scrollTo(0,0);
+}
+
+/* ---------- ISSUES ---------- */
+function viewIssues(){
+  const all=S.issues.filter(i=>!i.hist&&(UI.filter==='all'||i.p===UI.filter));
+  const cols=[['open','Open','Crew needs to fix'],['fixed','Fixed','Waiting for PM to verify'],['verified','Verified','Closed with sign-off']];
+  const sevO={critical:0,watch:1,minor:2};
+  return `
+  <div class="head"><div><div class="eyebrow">Issues</div><h1>Punch list</h1><p>Every issue needs a second person to verify the fix. That stops "fixed" items from reappearing at the client walkthrough.</p></div><span class="sample">Sample data</span></div>
+  <div class="chips"><button class="chip" data-act="filter" data-p="all" aria-pressed="${UI.filter==='all'}">All projects</button>${S.projects.map(p=>`<button class="chip" data-act="filter" data-p="${p.id}" aria-pressed="${UI.filter===p.id}">${esc(p.name)} · ${openIssues(p.id).length}</button>`).join('')}</div>
+  <div class="board">${cols.map(([st,l,sub])=>{
+    const list=all.filter(i=>i.status===st).sort((a,b)=>sevO[a.sev]-sevO[b.sev]||a.at-b.at);
+    return `<div class="col"><div class="col-h"><span>${l} <span class="muted" style="font-weight:400">· ${sub}</span></span><span class="num muted">${list.length}</span></div>
+      ${list.length?list.map(i=>{const p=proj(i.p),h=ageH(i.at);return `<div class="card">
+        <div class="top"><span class="pill ${i.sev}">${i.sev}</span><span class="meta num">${h<1?'just now':h+'h old'}${st==='open'&&h>48?' · overdue':''}</span></div>
+        <div class="tt">${esc(i.title)}</div>
+        <div class="meta">${esc(p.name)} · ${esc(i.area)} · ${esc(crewOf(i.crew).lead)} · from ${esc(i.src)}</div>
+        <div class="acts">${st==='open'?`<button class="btn sm primary" data-act="fixed" data-id="${i.id}">Mark fixed</button>`:st==='fixed'?`<button class="btn sm primary" data-act="verify" data-id="${i.id}">Verify fix</button><button class="btn sm" data-act="reopen" data-id="${i.id}">Reopen</button>`:''}</div>
+      </div>`}).join(''):`<div class="empty">Nothing here.</div>`}</div>`}).join('')}</div>`;
+}
+
+/* ---------- REVIEW GATE ---------- */
+function reviewState(p,f){
+  const open=openIssues(p.id).length, pa=avg(p.pulse), last=p.pulse[p.pulse.length-1]??0;
+  const conds=[
+    [p.gates.Walkthrough==='pass','Final walkthrough passed and client signed off'],
+    [open===0,open===0?'No open or unverified issues':`${open} issue${open>1?'s':''} still open or unverified`],
+    [pa>=4.5&&last>=4,`Client check-ins average ${pa.toFixed(1)}, latest ${last}`],
+    [f.score>=4.7,`Forecast ${f.score.toFixed(2)} (needs 4.70)`]];
+  const ok=conds.every(c=>c[0]);
+  const status=p.reviewSent?'sent':ok?'ask':(f.score<4.3||last<=3)?'recover':'wait';
+  return {conds,status};
+}
+function viewReview(){
+  const W=warnings();
+  const rows=S.projects.map(p=>{const f=forecast(p,W);return{p,f,...reviewState(p,f)}});
+  const o={ask:0,recover:1,wait:2,sent:3};rows.sort((a,b)=>o[a.status]-o[b.status]);
+  const lbl={ask:['ok','Ask for review now'],recover:['crit','Recover first'],wait:['warn','Not yet'],sent:['tape','Request sent']};
+  return `
+  <div class="head"><div><div class="eyebrow">Review readiness</div><h1>Ask at the right moment</h1><p>A review request goes out only when all four conditions hold. Projects at risk get a recovery plan instead, so a 3-star moment never turns into a 3-star review.</p></div><span class="sample">Sample data</span></div>
+  <div class="rv-grid">${rows.map(({p,f,conds,status})=>{
+    const first=p.client.split(' ')[0];
+    const msg=`Hi ${first}, thank you for trusting DK Painting with ${p.name}. It was a pleasure working with you. If you're happy with how it turned out, a short review would mean a lot to our crew: [review link]`;
+    return `<section class="panel rv">
+      <div class="top"><div><h3>${esc(p.name)}</h3><div class="muted" style="font-size:.8rem">${esc(p.client)} · ${p.stage>=4?'Closeout':STAGES[p.stage]}</div></div><span class="pill ${lbl[status][0]}">${lbl[status][1]}</span></div>
+      <div>${starHTML(f.score)} <span class="muted" style="font-size:.78rem">forecast</span></div>
+      <ul class="conds">${conds.map(([y,t])=>`<li><span class="mk ${y?'y':'n'}">${y?'✓':'✕'}</span><span>${esc(t)}</span></li>`).join('')}</ul>
+      <div class="pulse"><span class="eyebrow">Client check-ins</span>${p.pulse.map(v=>`<span class="pd ${v<=3?'lo':v>=5?'hi':''}">${v}★</span>`).join('')}</div>
+      ${!p.reviewSent?`<div class="pulse"><span class="muted">Log a 1-tap check-in reply:</span><span class="rate">${[1,2,3,4,5].map(n=>`<button data-act="pulse" data-p="${p.id}" data-v="${n}" aria-label="Client rated ${n} of 5">${n}</button>`).join('')}</span></div>`:''}
+      ${status==='ask'?`<div>${UI.msg[p.id]?`<textarea class="msg" id="msg-${p.id}" aria-label="Review request message">${esc(msg)}</textarea><div class="row" style="margin-top:8px"><button class="btn sm" data-act="copy" data-p="${p.id}" style="flex:0 0 auto">Copy message</button><button class="btn sm primary" data-act="sent" data-p="${p.id}" style="flex:0 0 auto">Mark request sent</button></div>`:`<button class="btn primary" data-act="draft" data-p="${p.id}">Draft review request</button>`}</div>`:''}
+      ${status==='recover'?`<div class="playbook"><b>Recovery plan</b><ol><li>PM calls ${esc(first)} today, listens, and names a fix date.</li><li>Close critical items first: ${openIssues(p.id).filter(i=>i.sev==='critical').map(i=>esc(i.title)).join('; ')||'none open'}.</li><li>Send before and after photos of each fix.</li><li>Run a new check-in after the fix. Ask for a review only when it's back to 5.</li></ol></div>`:''}
+      ${status==='wait'?`<div class="muted" style="font-size:.84rem">Next step: ${!conds[0][0]?'run the Walkthrough check with the client.':!conds[1][0]?'close and verify the open issues.':'raise the forecast by handling warnings.'}</div>`:''}
+      ${status==='sent'?`<div class="muted" style="font-size:.84rem">Request logged as sent. Follow up in 3 days if no review appears.</div>`:''}
+    </section>`}).join('')}</div>`;
+}
+
+/* ---------- PATTERNS ---------- */
+function viewPatterns(){
+  const since=Date.now()-30*DAY;
+  const recent=S.issues.filter(i=>i.at>since);
+  const cats=[...new Set(recent.map(i=>i.cat))].sort((a,b)=>recent.filter(i=>i.cat===b).length-recent.filter(i=>i.cat===a).length);
+  const ks=Object.keys(S.crews);
+  const max=Math.max(1,...ks.flatMap(k=>cats.map(c=>recent.filter(i=>i.crew===k&&i.cat===c).length)));
+  const cell=n=>{if(!n)return `<td style="background:var(--sunk);color:var(--muted)">·</td>`;const a=.18+.72*(n/max);return `<td style="background:color-mix(in srgb,var(--crit) ${Math.round(a*100)}%,var(--surface));color:${a>.55?'#fff':'var(--ink)'}">${n}</td>`};
+  const insights=[];
+  ks.forEach(k=>{const c=crewOf(k);const by={};recent.filter(i=>i.crew===k).forEach(i=>by[i.cat]=(by[i.cat]||0)+1);const top=Object.entries(by).sort((a,b)=>b[1]-a[1])[0];
+    if(top&&top[1]>=3)insights.push({t:`${c.name} · ${top[1]} ${top[0].toLowerCase()} defects`,d:`${c.lead}'s crew. ${top[0]==='Cut lines'?'Pair the newest painter with the lead on the next two ceiling lines and switch to a 2-inch angled sash brush.':top[0]==='Touch-up'?'Halos come from touching up with a different applicator or old paint. Touch up with the same roller nap from the same batch, or repaint the full wall section.':top[0]==='Cleanliness'?'Add a 10-minute sweep and tape check before calling the walkthrough.':'Review the method on the next job start.'}`})});
+  const tot=recent.length,topCat=cats[0];
+  if(topCat)insights.push({t:`${topCat} is the top defect across all crews`,d:`${recent.filter(i=>i.cat===topCat).length} of ${tot} issues in the last 30 days. Add one targeted line to the toolbox talk this week.`});
+  return `
+  <div class="head"><div><div class="eyebrow">Quality insights</div><h1>Where defects come from</h1><p>Last 30 days of issues by crew and category. Repeat patterns feed the early-warning rules so the next job is checked for them first.</p></div><span class="sample">Sample data</span></div>
+  <div class="grid g-main">
+    <section class="panel"><div class="panel-h"><h2>Defects by crew and category</h2></div>
+      <div class="tbl-wrap"><table class="heat"><thead><tr><th>Crew</th>${cats.map(c=>`<th>${esc(c)}</th>`).join('')}<th>Total</th></tr></thead>
+      <tbody>${ks.map(k=>{const n=recent.filter(i=>i.crew===k).length;return `<tr><td class="l"><b>${crewOf(k).name}</b><br><span class="muted">${esc(crewOf(k).lead)}</span></td>${cats.map(c=>cell(recent.filter(i=>i.crew===k&&i.cat===c).length)).join('')}<td class="num"><b>${n}</b></td></tr>`}).join('')}</tbody></table></div>
+    </section>
+    <section class="panel"><div class="panel-h"><div><h2>First-pass rate</h2><p>Checks passed with zero fixes. Line marks the 90% target.</p></div></div>
+      <div class="bars">${ks.map(k=>{const c=crewOf(k),v=c.fp/c.checks*100;return `<div class="bar-row"><span>${c.name}<br><span class="muted" style="font-size:.76rem">${c.checks} checks</span></span><div class="bar"><i style="width:${v}%;background:${v>=90?'var(--ok)':v>=80?'var(--warn)':'var(--crit)'}"></i><span class="tgt" style="left:90%"></span></div><b class="num">${v.toFixed(0)}%</b></div>`}).join('')}</div>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:16px"><div class="panel-h"><h2>Coaching suggestions</h2></div>
+    <div class="ins-list">${insights.map(x=>`<div class="ins-item"><b>${esc(x.t)}</b><span class="muted">${esc(x.d)}</span></div>`).join('')}</div>
+  </section>`;
+}
+
+/* ---------- LOSS PREVENTION ---------- */
+const REWORK={Overspray:420,'Cut lines':180,'Touch-up':120,Cleanliness:90,Finish:260,Masking:150,Moisture:900,Coverage:220,Color:1400,'Surface prep':240,Conditions:600,'Film build':200,Cure:500,Protection:300,Closeout:60};
+const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+const LTYPE={order:['Mistake caught before it happened','tile g','✓'],purchase:['Purchase review','tile a','$'],time:['Time review','tile b','◷'],equip:['Equipment','tile v','⚒']};
+function allFlags(){
+  return [...S.loss.flags,...S.tools.filter(t=>Date.now()-t.last>5*DAY).map(t=>{
+    const p=S.projects.find(x=>x.crew===t.crew&&x.stage<4)||S.projects[0],d=Math.floor((Date.now()-t.last)/DAY);
+    return {id:'eq-'+t.id,type:'equip',p:p.id,sev:d>=8?'critical':'watch',t:`${t.name} #${t.id} not scanned in ${d} days`,m:`Assigned to ${S.crews[t.crew].name} (${S.crews[t.crew].lead}). Tools get scanned in the crew app at each job start.`,amt:t.value,fix:'Locate it and scan it today'}})];
+}
+function lossNumbers(){
+  const L=S.loss,F=allFlags();
+  const mats=L.materials.map(m=>{const used=m.bought-m.returned-m.left;const over=used-m.est;return{...m,used,over,pct:over/m.est*100,cost:Math.max(0,over)*m.price}});
+  const matLoss=mats.reduce((a,m)=>a+m.cost,0);
+  const st=id=>L.status[id]||'open';
+  const openFlags=F.filter(f=>st(f.id)==='open'||st(f.id)==='asked');
+  const atRisk=openFlags.filter(f=>f.type!=='order').reduce((a,f)=>a+f.amt,0);
+  const prevented=F.filter(f=>f.type==='order'&&st(f.id)==='fixed').reduce((a,f)=>a+f.amt,0);
+  const since=Date.now()-30*DAY;
+  const rework=S.issues.filter(i=>i.at>since).reduce((a,i)=>a+(REWORK[i.cat]||150),0);
+  const monthly=matLoss+F.filter(f=>f.type==='purchase'||f.type==='time').reduce((a,f)=>a+f.amt,0)*4+rework;
+  return {mats,matLoss,openFlags,atRisk,prevented,rework,annual:monthly*12,st};
+}
+function viewLoss(){
+  const N=lossNumbers(),L=S.loss;
+  const stLbl={open:['warn','Needs review'],asked:['tape','Waiting on reply'],cleared:['ok','Cleared'],confirmed:['crit','Loss confirmed'],fixed:['ok','Fixed before it cost us']};
+  const groups=['order','purchase','time','equip'];
+  return `
+  <div class="head"><div><div class="eyebrow">Loss prevention</div><h1>Stop the money leaks</h1><p>Mistakes and missing materials, time and tools are compared against the estimate, the color schedule and site check-ins. A flag means "please explain", not proof that someone did something wrong.</p></div><span class="sample">Sample data</span></div>
+  <div class="kpis">
+    <div class="kpi"><div class="kt"><span class="tile a">$</span><span class="delta dn">at this month's rate</span></div><span class="eyebrow">Estimated yearly leakage</span><span class="v">${money(N.annual)}</span><span class="s">Materials, purchases, time and rework</span></div>
+    <div class="kpi"><div class="kt"><span class="tile b">▦</span><span class="delta ${N.matLoss>0?'dn':'up'}">this month</span></div><span class="eyebrow">Paint over estimate</span><span class="v">${money(N.matLoss)}</span><span class="s">${N.mats.filter(m=>m.pct>10).length} projects more than 10% over</span></div>
+    <div class="kpi"><div class="kt"><span class="tile v">!</span><span class="delta">${N.openFlags.length} open</span></div><span class="eyebrow">Under review</span><span class="v">${money(N.atRisk)}</span><span class="s">Purchases, hours and equipment</span></div>
+    <div class="kpi"><div class="kt"><span class="tile g">✓</span><span class="delta up">saved</span></div><span class="eyebrow">Mistakes stopped early</span><span class="v">${money(N.prevented)}</span><span class="s">Rework cost last 30 days: ${money(N.rework)}</span></div>
+  </div>
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-h"><div><h2>Flags to review</h2><p>Each flag needs an answer from the crew lead before it's closed. Confirmed losses go to the owner.</p></div></div>
+      ${groups.map(g=>{const list=allFlags().filter(f=>f.type===g);return `<div style="margin-top:6px"><div class="eyebrow" style="display:flex;align-items:center;gap:8px;margin:10px 0 2px"><span class="${LTYPE[g][1]}" style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:.75rem">${LTYPE[g][2]}</span>${LTYPE[g][0]}</div>
+        <div class="warn-list">${list.map(f=>{const s=N.st(f.id),p=proj(f.p);const done=s==='cleared'||s==='confirmed'||s==='fixed';return `<div class="wrow stack" style="${done?'opacity:.6':''}"><span class="dot ${done?'ok':f.sev}"></span>
+          <div><div class="t">${esc(f.t)}</div><div class="m"><b>${esc(p.name)}</b> · ${esc(f.m)}</div><div class="fix">${done?'':'Next step: <b>'+esc(f.fix)+'</b> · '}<span class="num">${money(f.amt)}</span> ${f.type==='order'?'if not caught':'at stake'}</div></div>
+          <div class="acts"><span class="pill ${stLbl[s][0]}">${stLbl[s][1]}</span>${done?`<button class="btn sm" data-act="lossset" data-id="${f.id}" data-v="open">Undo</button>`:f.type==='order'?`<button class="btn sm primary" data-act="lossset" data-id="${f.id}" data-v="fixed">Mark fixed</button><button class="btn sm" data-act="lossset" data-id="${f.id}" data-v="cleared">Not an issue</button>`:`${s==='open'?`<button class="btn sm primary" data-act="lossset" data-id="${f.id}" data-v="asked">Ask crew lead</button>`:''}<button class="btn sm" data-act="lossset" data-id="${f.id}" data-v="cleared">Cleared</button><button class="btn sm" data-act="lossset" data-id="${f.id}" data-v="confirmed">Confirm loss</button>`}</div></div>`}).join('')}</div></div>`}).join('')}
+    </section>
+    <div class="grid g-half" style="align-items:start">
+      <section class="panel">
+        <div class="panel-h"><div><h2>Paint reconciliation</h2><p>Gallons used = bought − returned − leftover. Over 10% gets a flag.</p></div></div>
+        <div class="tbl-wrap"><table class="heat" style="min-width:420px;border-spacing:0">
+          <thead><tr><th>Project</th><th style="text-align:right">Est.</th><th style="text-align:right">Used</th><th style="text-align:right">Over</th><th style="text-align:right">Cost</th></tr></thead>
+          <tbody>${N.mats.map(m=>`<tr style="border-top:1px solid var(--line)"><td class="l" style="border-top:1px solid var(--line);border-radius:0;padding:8px 6px"><b>${esc(proj(m.p).name)}</b><br><span class="muted" style="font-size:.76rem">${esc(m.product)}</span></td>
+            <td style="text-align:right;border-top:1px solid var(--line);border-radius:0">${m.est} gal</td><td style="text-align:right;border-top:1px solid var(--line);border-radius:0">${m.used} gal</td>
+            <td style="text-align:right;border-top:1px solid var(--line);border-radius:0"><span class="pill ${m.pct>10?'crit':m.pct>5?'warn':'ok'}">${m.pct>0?'+':''}${m.pct.toFixed(0)}%</span></td>
+            <td style="text-align:right;border-top:1px solid var(--line);border-radius:0">${m.cost?money(m.cost):'·'}</td></tr>`).join('')}</tbody></table></div>
+      </section>
+      <section class="panel rule-card">
+        <h2>How it prevents loss</h2>
+        <ul>
+          <li><b>Order check:</b> every material order is matched to the signed color schedule and estimate before it ships. Wrong color, sheen, product or quantity gets stopped.</li>
+          <li><b>Paint reconciliation:</b> leftover gallons get counted at Walkthrough, so every gallon is accounted for.</li>
+          <li><b>Purchase rules:</b> flags buys outside crew hours, far from the job, not on the material list, or bought twice.</li>
+          <li><b>Time vs. site:</b> compares timesheets with site check-ins. Gaps over 10% go to the PM.</li>
+          <li><b>Tool check-out:</b> sprayers and sanders get scanned at each job start. Anything unscanned for 5 days is flagged.</li>
+          <li><b>Rework cost:</b> every quality issue carries a typical fix cost, so you can see what mistakes cost each crew.</li>
+        </ul>
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ---------- CREW APP ---------- */
+const L10N={
+ en:{hello:'Good morning',job:'Your job today',clockIn:'Clock in at site',clockOut:'Clock out',loc:'Location check: you are at the job site',since:'Clocked in at',heads:'Heads up',todo:'To do today',run:'Run {g} inspection',fixesN:'{n} fixes for your crew',scanN:'{n} tools need a scan',leftover:'Count leftover paint before you leave',none:'Nothing else today.',
+   tToday:'Today',tInspect:'Inspect',tFixes:'Fixes',tMat:'Paint & tools',pass:'Pass',fix:'Fix',na:'N/A',allPass:'All pass',area:'Area or room',areaPh:'e.g. Unit 3B, west wall',readings:'Readings',moisture:'Moisture meter (%)',surf:'Surface temp (°F)',dew:'Dew point (°F)',wft:'Wet film (mils)',limit:'limit',target:'target',photos:'Photos',addPhoto:'+ Photo',submit:'Send inspection',
+   notTaken:'Not taken',inSpec:'OK',outSpec:'Out of spec',missing:'{n} items still need an answer.',sent:'Inspection sent',score:'First-pass score',gatePass:'Gate passed. You can start the next stage.',gateFail:'Gate failed. Fix these, then inspect again.',created:'Fixes created',another:'New inspection',
+   openFix:'To fix',waiting:'Waiting for PM to check',markFixed:'Mark fixed',noFixes:'No open fixes. Nice work.',afterPhoto:'+ After photo',
+   paint:'Log paint',kind:'What happened?',received:'Received from store',returned:'Returned to store',left:'Leftover on site (count)',gal:'Gallons',save:'Save',buy:'Log a purchase',what:'What did you buy?',amount:'Amount ($)',receipt:'Receipt photo',receiptNeed:'Add a photo of the receipt to save.',tools:'Your tools',scan:'Scan',scanned:'Scanned',lastScan:'Last scan',needScan:'Scan needed',
+   who:'Who is using this phone?',switchCrew:'Switch crew',mgr:'Manager dashboard',estUsed:'Estimate {e} gal · used so far {u} gal',saved:'Saved',paintNote:'Every gallon is matched to the estimate.'},
+ es:{hello:'Buenos días',job:'Tu trabajo hoy',clockIn:'Marcar entrada en la obra',clockOut:'Marcar salida',loc:'Ubicación: estás en la obra',since:'Entrada a las',heads:'Atención',todo:'Pendiente hoy',run:'Hacer inspección de {g}',fixesN:'{n} arreglos para tu equipo',scanN:'{n} herramientas por escanear',leftover:'Cuenta la pintura sobrante antes de salir',none:'Nada más por hoy.',
+   tToday:'Hoy',tInspect:'Inspección',tFixes:'Arreglos',tMat:'Pintura',pass:'Bien',fix:'Arreglar',na:'N/A',allPass:'Todo bien',area:'Área o cuarto',areaPh:'ej. Unidad 3B, pared oeste',readings:'Mediciones',moisture:'Medidor de humedad (%)',surf:'Temp. de superficie (°F)',dew:'Punto de rocío (°F)',wft:'Película húmeda (mils)',limit:'límite',target:'meta',photos:'Fotos',addPhoto:'+ Foto',submit:'Enviar inspección',
+   notTaken:'Falta',inSpec:'Bien',outSpec:'Fuera de rango',missing:'Faltan {n} respuestas.',sent:'Inspección enviada',score:'Resultado a la primera',gatePass:'Aprobada. Pueden empezar la siguiente etapa.',gateFail:'No aprobada. Arreglen esto e inspeccionen otra vez.',created:'Arreglos creados',another:'Nueva inspección',
+   openFix:'Por arreglar',waiting:'Esperando revisión del PM',markFixed:'Marcar arreglado',noFixes:'No hay arreglos pendientes. ¡Buen trabajo!',afterPhoto:'+ Foto después',
+   paint:'Registrar pintura',kind:'¿Qué pasó?',received:'Recibida de la tienda',returned:'Devuelta a la tienda',left:'Sobrante en la obra (conteo)',gal:'Galones',save:'Guardar',buy:'Registrar una compra',what:'¿Qué compraste?',amount:'Monto ($)',receipt:'Foto del recibo',receiptNeed:'Agrega una foto del recibo para guardar.',tools:'Tus herramientas',scan:'Escanear',scanned:'Escaneada',lastScan:'Último escaneo',needScan:'Falta escanear',
+   who:'¿Quién usa este teléfono?',switchCrew:'Cambiar equipo',mgr:'Panel de gerencia',estUsed:'Estimado {e} gal · usado {u} gal',saved:'Guardado',paintNote:'Cada galón se compara con el estimado.'}
+};
+const GN={en:{Prep:'Prep',Prime:'Prime',Finish:'Finish',Walkthrough:'Walkthrough'},es:{Prep:'Preparación',Prime:'Primer',Finish:'Acabado',Walkthrough:'Revisión final'}};
+const CAT_ES={'Cut lines':'líneas de corte','Touch-up':'retoques','Cleanliness':'limpieza','Overspray':'overspray','Finish':'acabado','Masking':'cinta'};
+function tr(k){const L=UI.mode==='crew'?L10N[UI.lang]:L10N.en;return (L&&L[k])||L10N.en[k]||k}
+const gname=g=>UI.mode==='crew'?GN[UI.lang][g]:g;
+const ilabel=i=>UI.mode==='crew'&&UI.lang==='es'&&i.es?i.es:i.t;
+function activeProject(k){return S.projects.find(p=>p.crew===k&&p.stage<4)||null}
+function clockTime(t){return new Date(t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+function crewAlerts(p,k){
+  const es=UI.lang==='es',out=[],H=id=>p.handled.includes(p.id+':'+id);
+  if(p.wx&&p.stage>=1&&p.stage<=2&&p.wx.rainHrs<p.wx.cureHrs&&!H('rain'))out.push(['crit',es?`Lluvia en ${p.wx.rainHrs}h. No empiecen capa exterior hoy. La pintura necesita ${p.wx.cureHrs}h para curar.`:`Rain in ${p.wx.rainHrs}h. Don't start an exterior coat today. Paint needs ${p.wx.cureHrs}h to cure.`]);
+  if(p.wx&&p.wx.spread<5&&!H('dew'))out.push(['watch',es?`La superficie está solo ${p.wx.spread}°F sobre el punto de rocío. Esperen hasta las 9:30 AM y midan otra vez.`:`Surface is only ${p.wx.spread}°F above dew point. Wait until about 9:30 AM, then measure again.`]);
+  if(p.moisture.v!=null&&p.moisture.v>p.moisture.limit&&!H('moist'))out.push(['crit',es?`Humedad ${p.moisture.v}% (límite ${p.moisture.limit}%). No pinten esa área hasta que esté seca.`:`Moisture ${p.moisture.v}% (limit ${p.moisture.limit}%). Don't paint that area until it's dry.`]);
+  const sk=GATES.slice(0,Math.min(p.stage,4)).find(g=>p.gates[g]!=='pass'&&p.gates[g]!=='fail');
+  if(sk&&!H('gate-'+sk))out.push(['crit',es?`Falta la inspección de ${GN.es[sk]}. Háganla antes de seguir.`:`The ${sk} inspection is missing. Do it before you continue.`]);
+  const since=Date.now()-30*DAY,cnt={};S.issues.filter(i=>i.crew===k&&i.at>since).forEach(i=>cnt[i.cat]=(cnt[i.cat]||0)+1);
+  Object.entries(cnt).filter(([,n])=>n>=3).forEach(([c,n])=>out.push(['watch',es?`Tu equipo tuvo ${n} arreglos de ${CAT_ES[c]||c.toLowerCase()} este mes. Cuidado extra hoy.`:`Your crew had ${n} ${c.toLowerCase()} fixes this month. Take extra care today.`]));
+  return out;
+}
+function crewShell(){
+  if($('#cscroll'))return;
+  $('#crew').innerHTML=`<div class="crew-stage"><div class="pframe"><header class="c-top" id="ctop"></header><div id="cscroll"><div id="cbody"></div></div><nav class="c-tabs" id="ctabs"></nav></div>
+  <aside class="crew-note"><span class="eyebrow">Crew app</span><h2>What the crew sees on their phone</h2><p>Big buttons, English or Spanish, four tabs. Everything they do here shows up on the management dashboard right away.</p><p>Send crews this same link. On a phone it opens full screen.</p><button class="btn primary" data-act="mode" data-m="mgmt">Open the manager dashboard</button><button class="btn" data-act="mode" data-m="pick">Back to start</button></aside></div>`;
+}
+function renderCrew(){
+  crewShell();
+  const me=S.me, c=me&&crewOf(me), p=me&&(activeProject(me)||S.projects.find(x=>x.crew===me));
+  $('#ctop').innerHTML=me?`<span class="avatar">${me}</span><div><b>${esc(c.lead)}</b><span>${esc(c.name)} · FieldPulse</span></div>`:`<div class="brand-mark" aria-hidden="true"><i style="height:7px"></i><i style="height:13px"></i><i style="height:10px"></i></div><div><b>FieldPulse</b><span>Crew app</span></div>`;
+  $('#ctop').insertAdjacentHTML('beforeend',`<div class="c-lang" role="group" aria-label="Language"><button data-act="lang" data-v="en" aria-pressed="${UI.lang==='en'}">EN</button><button data-act="lang" data-v="es" aria-pressed="${UI.lang==='es'}">ES</button></div>`);
+  if(!me){
+    $('#ctabs').hidden=true;
+    $('#cbody').innerHTML=`<div class="c-hello">${tr('who')}</div><div class="crew-list">${Object.entries(S.crews).map(([k,x])=>`<button data-act="setme" data-k="${k}"><span class="avatar">${k}</span><div><b>${esc(x.lead)}</b><div class="muted" style="font-size:.8rem">${esc(x.name)} · ${esc((activeProject(k)||{}).name||'')}</div></div></button>`).join('')}</div>
+      <button class="cbtn" data-act="mode" data-m="mgmt">${tr('mgr')}</button>`;
+    return;
+  }
+  const fixes=S.issues.filter(i=>!i.hist&&i.crew===me&&i.status==='open');
+  const toolsDue=S.tools.filter(t=>t.crew===me&&Date.now()-t.last>DAY);
+  $('#ctabs').hidden=false;
+  $('#ctabs').innerHTML=[['today','⌂','tToday'],['inspect','✓','tInspect'],['fixes','!','tFixes',fixes.length],['mat','▤','tMat',toolsDue.length]].map(([k,ic,l,n])=>`<button data-act="ctab" data-t="${k}" ${UI.ctab===k?'aria-current="page"':''}><span class="ti">${ic}</span>${tr(l)}${n?`<span class="cb">${n}</span>`:''}</button>`).join('');
+  const body={today:crewToday,inspect:crewInspect,fixes:crewFixes,mat:crewMat}[UI.ctab](me,c,p,fixes,toolsDue);
+  $('#cbody').innerHTML=body;
+}
+function crewToday(me,c,p,fixes,toolsDue){
+  const ci=S.clock[me]&&S.clock[me].in, al=p?crewAlerts(p,me):[], g=p?nextGate(p):null;
+  return `<div><div class="eyebrow date">${new Date().toLocaleDateString(UI.lang==='es'?'es-US':'en-US',{weekday:'long',month:'long',day:'numeric'})}</div><div class="c-hello">${(h=>UI.lang==='es'?(h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches'):(h<12?'Good morning':h<17?'Good afternoon':'Good evening'))(new Date().getHours())}, ${esc(c.lead.split(' ')[0])}</div></div>
+  ${p?`<div class="ccard"><div class="eyebrow">${tr('job')}</div><h3>${esc(p.name)}</h3><div class="muted" style="font-size:.85rem">${esc(p.scope)} · ${esc(p.city)}, TX</div>${gateBar(p)}<div class="cstat"><span>${gname(STAGES[p.stage]||'Closeout')}</span><span>${esc(p.kind)}</span></div></div>`:''}
+  <div class="ccard">${ci?`<div class="cstat"><span>${tr('since')}</span><b>${clockTime(ci)} · ${((Date.now()-ci)/HOUR).toFixed(1)} h</b></div><div class="muted" style="font-size:.8rem">✓ ${tr('loc')}</div><button class="cbtn" data-act="clock">${tr('clockOut')}</button>`:`<button class="cbtn go" data-act="clock">${tr('clockIn')}</button><div class="muted" style="font-size:.8rem">${tr('loc')} (demo)</div>`}</div>
+  ${al.length?`<div class="ccard"><h3>${tr('heads')}</h3>${al.map(([s,t])=>`<div class="alert ${s}"><span class="ai">!</span><span>${esc(t)}</span></div>`).join('')}</div>`:''}
+  <div class="ccard"><h3>${tr('todo')}</h3><div class="todo">
+    ${p&&p.stage<4?`<button data-act="ctab" data-t="inspect"><span class="tic tile g">✓</span><span>${tr('run').replace('{g}',gname(g))}</span><span class="muted">›</span></button>`:''}
+    ${fixes.length?`<button data-act="ctab" data-t="fixes"><span class="tic tile a">!</span><span>${tr('fixesN').replace('{n}',fixes.length)}</span><span class="muted">›</span></button>`:''}
+    ${toolsDue.length?`<button data-act="ctab" data-t="mat"><span class="tic tile v">▤</span><span>${tr('scanN').replace('{n}',toolsDue.length)}</span><span class="muted">›</span></button>`:''}
+    <button data-act="ctab" data-t="mat"><span class="tic tile b">▦</span><span>${tr('leftover')}</span><span class="muted">›</span></button>
+  </div></div>
+  <button class="cbtn" data-act="setme" data-k="">${tr('switchCrew')}</button>`;
+}
+function crewInspect(me,c,p){
+  if(!p)return `<div class="empty">${tr('none')}</div>`;
+  if(UI.result){const R=UI.result;return `<div class="ccard" style="gap:12px"><div class="eyebrow">${tr('sent')}</div><div class="c-hello">${esc(R.pname)} · ${gname(R.gate)}</div>
+    <div><div class="eyebrow">${tr('score')}</div><div style="font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1">${R.fp}%</div></div>
+    <div class="alert ${R.gatePass?'':'crit'}" style="${R.gatePass?'background:var(--ok-soft)':''}"><span class="ai" style="color:${R.gatePass?'var(--ok)':'var(--crit)'}">${R.gatePass?'✓':'!'}</span><span>${R.gatePass?tr('gatePass'):tr('gateFail')}</span></div>
+    ${R.fails.length?`<div><div class="eyebrow" style="margin-bottom:6px">${tr('created')}</div>${R.fails.map(f=>{const it=Object.values(CHECKLISTS).flat().find(x=>x.id===f.item);return `<div class="tool"><span>${esc(it?ilabel(it):f.fail)}</span><span class="pill ${f.sev}">${f.sev}</span></div>`}).join('')}</div>`:''}
+    <button class="cbtn go" data-act="newcheck">${tr('another')}</button></div>`}
+  if(!UI.draft||UI.draft.pid!==p.id)newDraft(p.id);
+  const d=UI.draft,items=CHECKLISTS[d.gate],rk=readingsFor(p,d.gate);
+  return `<form id="checkform" novalidate style="display:flex;flex-direction:column;gap:12px">
+    <div class="c-hello" style="font-size:1.2rem">${esc(p.name)}</div>
+    <div class="cgates">${GATES.map(g=>`<button type="button" data-act="gate" data-g="${g}" aria-pressed="${g===d.gate}">${p.gates[g]==='pass'?'<span class="ok">✓</span> ':''}${gname(g)}</button>`).join('')}</div>
+    <label class="f">${tr('area')}<input class="inp" id="f-area" placeholder="${tr('areaPh')}" value="${esc(d.area)}"></label>
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">${items.filter(i=>d.marks[i.id]).length}/${items.length}</span><button type="button" class="cbtn sm soft" data-act="allpass">${tr('allPass')}</button></div>
+    ${items.map(i=>`<div class="citem"><div class="lbl">${esc(ilabel(i))}</div><div class="cseg">${[['pass','pass'],['fail','fix'],['na','na']].map(([v,l])=>`<button type="button" data-act="mark" data-i="${i.id}" data-v="${v}" aria-pressed="${d.marks[i.id]===v}">${tr(l)}</button>`).join('')}</div></div>`).join('')}
+    ${rk.length?`<div class="readings"><span class="eyebrow">${tr('readings')}</span>${rk.map(k=>k==='moisture'?`<div class="rd"><div class="ins"><label class="f">${tr('moisture')} · ${tr('limit')} ${p.moisture.limit}%<input class="inp num" id="r-moisture" type="number" step="0.1" inputmode="decimal" value="${esc(d.r.moisture)}"></label></div><span id="p-moisture">${readingPill('moisture')}</span></div>`
+      :k==='dew'?`<div class="rd"><div class="ins"><label class="f">${tr('surf')}<input class="inp num" id="r-surf" type="number" step="0.1" inputmode="decimal" value="${esc(d.r.surf)}"></label><label class="f">${tr('dew')}<input class="inp num" id="r-dew" type="number" step="0.1" inputmode="decimal" value="${esc(d.r.dew)}"></label></div><span id="p-dew">${readingPill('dew')}</span></div>`
+      :`<div class="rd"><div class="ins"><label class="f">${tr('wft')} · ${tr('target')} 4<input class="inp num" id="r-wft" type="number" step="0.5" inputmode="decimal" value="${esc(d.r.wft)}"></label></div><span id="p-wft">${readingPill('wft')}</span></div>`).join('')}</div>`:''}
+    <div><div class="eyebrow" style="margin-bottom:6px">${tr('photos')}</div><div class="photos">${d.photos.map(u=>`<img src="${u}" alt="">`).join('')}<label class="upl">${tr('addPhoto')}<input type="file" id="f-photo" accept="image/*" multiple></label></div></div>
+    ${d.err?`<div class="err">${esc(d.err)}</div>`:''}
+    <button class="cbtn go" type="submit">${tr('submit')}</button></form>`;
+}
+function issueLabel(i){const it=i.item&&Object.values(CHECKLISTS).flat().find(x=>x.id===i.item);return it&&UI.lang==='es'?it.es:i.title}
+function crewFixes(me){
+  const mine=S.issues.filter(i=>!i.hist&&i.crew===me);
+  const open=mine.filter(i=>i.status==='open'),wait=mine.filter(i=>i.status==='fixed');
+  const card=(i,act)=>{const p=proj(i.p),ph=(UI.fixPhotos||{})[i.id]||[];return `<div class="citem"><div style="display:flex;justify-content:space-between;gap:8px"><span class="pill ${i.sev}">${i.sev}</span><span class="muted num" style="font-size:.76rem">${ageH(i.at)}h</span></div><div class="lbl">${esc(issueLabel(i))}</div><div class="muted" style="font-size:.8rem">${esc(p.name)} · ${esc(i.area)}</div>
+    ${act?`<div class="photos">${ph.map(u=>`<img src="${u}" alt="">`).join('')}<label class="upl">${tr('afterPhoto')}<input type="file" accept="image/*" data-fixphoto="${i.id}"></label></div><button class="cbtn go" data-act="cfixed" data-id="${i.id}">${tr('markFixed')}</button>`:''}</div>`};
+  return `<div class="c-hello" style="font-size:1.2rem">${tr('openFix')} · ${open.length}</div>
+    ${open.length?open.map(i=>card(i,true)).join(''):`<div class="ccard muted">${tr('noFixes')}</div>`}
+    ${wait.length?`<div class="eyebrow">${tr('waiting')} · ${wait.length}</div>${wait.map(i=>card(i,false)).join('')}`:''}`;
+}
+function crewMat(me,c,p){
+  const m=p&&S.loss.materials.find(x=>x.p===p.id),used=m?m.bought-m.returned-m.left:0;
+  const tools=S.tools.filter(t=>t.crew===me);
+  const B=UI.buy||(UI.buy={what:'',amt:'',photo:null,err:''});
+  return `${p&&m?`<form class="ccard" id="paintform"><h3>${tr('paint')} · ${esc(p.name)}</h3><div class="muted" style="font-size:.8rem">${tr('estUsed').replace('{e}',m.est).replace('{u}',used)}. ${tr('paintNote')}</div>
+    <label class="f">${tr('kind')}<select class="inp" id="pt-kind"><option value="received">${tr('received')}</option><option value="returned">${tr('returned')}</option><option value="left">${tr('left')}</option></select></label>
+    <label class="f">${tr('gal')}<input class="inp num" id="pt-gal" type="number" step="0.5" min="0" inputmode="decimal"></label><button class="cbtn go" type="submit">${tr('save')}</button></form>`:''}
+  <div class="ccard"><h3>${tr('tools')}</h3>${tools.map(t=>{const old=Date.now()-t.last>DAY;return `<div class="tool"><div><b>${esc(UI.lang==='es'?t.es:t.name)}</b> <span class="muted num">#${t.id}</span><div class="muted" style="font-size:.76rem">${old?`<span style="color:var(--crit)">${tr('needScan')}</span> · `:''}${tr('lastScan')}: ${ago(t.last)}</div></div>${old?`<button class="cbtn sm go" data-act="scan" data-id="${t.id}">${tr('scan')}</button>`:`<span class="pill ok">${tr('scanned')}</span>`}</div>`}).join('')}</div>
+  ${p?`<form class="ccard" id="buyform"><h3>${tr('buy')}</h3><label class="f">${tr('what')}<input class="inp" id="by-what" value="${esc(B.what)}" placeholder="2 gal SW 7005, caulk"></label>
+    <label class="f">${tr('amount')}<input class="inp num" id="by-amt" type="number" step="0.01" min="0" inputmode="decimal" value="${esc(B.amt)}"></label>
+    <div><div class="eyebrow" style="margin-bottom:6px">${tr('receipt')}</div><div class="photos">${B.photo?`<img src="${B.photo}" alt="">`:''}<label class="upl">${tr('addPhoto')}<input type="file" accept="image/*" id="by-photo"></label></div></div>
+    ${B.err?`<div class="err">${esc(B.err)}</div>`:''}<button class="cbtn go" type="submit">${tr('save')}</button></form>`:''}`;
+}
+function renderPick(){
+  $('#pick').innerHTML=`<div class="pick-in"><div class="pick-brand"><div class="brand-mark" aria-hidden="true"><i style="height:7px"></i><i style="height:13px"></i><i style="height:10px"></i></div><b>FieldPulse</b><span class="sample" style="margin-left:auto">Demo · sample data</span></div>
+  <div><h1>Field quality for DK Painting</h1><p class="muted" style="margin:6px 0 0;max-width:62ch">Two sides of one system. Crews check and log work on their phones. Managers see every job, predict problems, and stop losses. Both use the same data, so try something in one and look for it in the other.</p></div>
+  <div class="pick-cards">
+    <a class="pcard" href="#crew" data-act="mode" data-m="crew"><span class="pic tile g">▯</span><h2>Crew app</h2><ul><li>Clock in at the job site</li><li>Stage inspections with big Pass / Fix buttons</li><li>Fix list with after photos</li><li>Log paint, receipts and tool scans</li><li>English and Spanish</li></ul><span class="go">Open on a phone →</span></a>
+    <a class="pcard" href="#today" data-act="mode" data-m="mgmt"><span class="pic tile b">▦</span><h2>Management dashboard</h2><ul><li>5-star forecast per project, with reasons</li><li>Early warnings before problems happen</li><li>Punch list with second-person verification</li><li>Review readiness and crew patterns</li><li>Loss prevention: paint, purchases, time, tools</li></ul><span class="go">Open the dashboard →</span></a>
+  </div></div>`;
+}
+
+/* ---------- render + events ---------- */
+function render(){
+  $('#pick').hidden=UI.mode!=='pick';$('#crew').hidden=UI.mode!=='crew';$('.app').hidden=UI.mode!=='mgmt';
+  document.title=UI.mode==='crew'?'FieldPulse Crew':'FieldPulse';
+  if(UI.mode==='pick')return renderPick();
+  if(UI.mode==='crew')return renderCrew();
+  renderMgmt();
+}
+function renderMgmt(){
+  renderNav();
+  const m=$('#main');
+  m.innerHTML={today:viewToday,check:viewCheck,issues:viewIssues,review:viewReview,patterns:viewPatterns,loss:viewLoss}[UI.view]();
+  m.insertAdjacentHTML('beforeend','<div style="margin-top:24px"><button class="btn sm mob-reset" data-act="reset">Reset demo data</button></div>');
+}
+function route(h){if(h==='crew')UI.mode='crew';else if(VIEWS.some(v=>v[0]===h)){UI.mode='mgmt';UI.view=h}else UI.mode='pick'}
+function go(v){route(v);try{history.replaceState(null,'','#'+(v==='pick'?'start':v))}catch(e){}UI.draft=null;UI.result=null;render();window.scrollTo(0,0);const cs=$('#cscroll');if(cs)cs.scrollTop=0}
+route((location.hash||'').slice(1));
+
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-view]');if(nav){e.preventDefault();go(nav.dataset.view);return}
+  const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  if(a.tagName==='A')e.preventDefault();
+  const act=a.dataset.act, d=a.dataset;
+  const issue=d.id&&S.issues.find(i=>i.id==d.id);
+  switch(act){
+    case 'why':UI.open[d.p]=!UI.open[d.p];render();break;
+    case 'handle':{const pid=d.id.split(':')[0];proj(pid).handled.push(d.id);S.feed.unshift({k:'info',ic:'✓',t:'Warning handled',s:proj(pid).name,at:Date.now()});save();render();toast('Warning marked handled. Forecast updated.');break}
+    case 'sendupdate':{const p=proj(d.p);p.updateDays=0;S.feed.unshift({k:'info',ic:'↗',t:'Photo update sent to client',s:p.name+' · Alex H.',at:Date.now()});save();render();toast('Client update logged.');break}
+    case 'startnew':newDraft(S.projects.find(p=>p.stage<4)?.id||S.projects[0].id);go('check');break;
+    case 'startcheck':newDraft(d.p,d.g);go('check');break;
+    case 'newcheck':newDraft(S.projects.find(p=>p.stage<4)?.id||S.projects[0].id);render();break;
+    case 'gate':UI.draft.gate=d.g;UI.draft.marks={};UI.draft.err='';render();break;
+    case 'mark':UI.draft.marks[d.i]=d.v;UI.draft.err='';render();break;
+    case 'allpass':CHECKLISTS[UI.draft.gate].forEach(i=>{if(!UI.draft.marks[i.id])UI.draft.marks[i.id]='pass'});render();break;
+    case 'filter':UI.filter=d.p;render();break;
+    case 'fixed':issue.status='fixed';S.feed.unshift({k:'watch',ic:'◷',t:`Fixed, awaiting verification: ${issue.title}`,s:proj(issue.p).name+' · '+crewOf(issue.crew).lead,at:Date.now()});save();render();toast('Moved to Fixed. A PM needs to verify it.');break;
+    case 'verify':issue.status='verified';S.feed.unshift({k:'ok',ic:'✓',t:`Verified: ${issue.title}`,s:proj(issue.p).name+' · Alex H.',at:Date.now()});save();render();toast('Fix verified and closed.');break;
+    case 'reopen':issue.status='open';issue.at=Date.now();save();render();toast('Issue reopened.');break;
+    case 'pulse':{const p=proj(d.p),v=+d.v;p.pulse.push(v);S.feed.unshift({k:v<=3?'crit':v>=5?'ok':'watch',ic:'★',t:`Client check-in: ${v} of 5`,s:p.name+' · '+p.client,at:Date.now()});save();render();toast(`Check-in of ${v} logged.`);break}
+    case 'draft':UI.msg[d.p]=true;render();break;
+    case 'copy':{const ta=$('#msg-'+d.p);const done=()=>toast('Message copied.');try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select();toast('Text selected. Press Ctrl+C or ⌘C to copy.')})}catch(err){ta.select();toast('Text selected. Press Ctrl+C or ⌘C to copy.')}break}
+    case 'sent':{const p=proj(d.p);p.reviewSent=true;S.feed.unshift({k:'ok',ic:'★',t:'Review request logged as sent',s:p.name,at:Date.now()});save();render();toast('Logged as sent.');break}
+    case 'mode':go(a.dataset.m==='crew'?'crew':a.dataset.m==='mgmt'?UI.view:'pick');break;
+    case 'lang':UI.lang=d.v;try{localStorage.setItem('fp-lang',d.v)}catch(err){}if(UI.draft)UI.draft.err='';render();break;
+    case 'setme':S.me=d.k||null;UI.ctab='today';UI.draft=null;UI.result=null;save();render();break;
+    case 'ctab':UI.ctab=d.t;if(d.t!=='inspect')UI.result=null;render();$('#cscroll').scrollTop=0;break;
+    case 'clock':{const k=S.me,p=activeProject(k),ci=S.clock[k]&&S.clock[k].in;S.clock[k]={in:ci?null:Date.now()};S.feed.unshift({k:'info',ic:'◷',t:`${crewOf(k).name} clocked ${ci?'out':'in'}${ci?' after '+((Date.now()-ci)/HOUR).toFixed(1)+' h':''}`,s:(p?p.name:'')+' · location matched the job site',at:Date.now()});save();render();toast(ci?'Clocked out.':'Clocked in.');break}
+    case 'cfixed':issue.status='fixed';S.feed.unshift({k:'watch',ic:'◷',t:`Fixed in crew app, awaiting verification: ${issue.title}`,s:proj(issue.p).name+' · '+crewOf(issue.crew).lead+((UI.fixPhotos[issue.id]||[]).length?' · after photo attached':''),at:Date.now()});save();render();toast(UI.lang==='es'?'Enviado al PM para revisión.':'Sent to the PM to verify.');break;
+    case 'scan':{const t=S.tools.find(x=>x.id===d.id);t.last=Date.now();S.feed.unshift({k:'ok',ic:'▤',t:`${t.name} #${t.id} scanned`,s:crewOf(t.crew).name+' · '+((activeProject(t.crew)||{}).name||''),at:Date.now()});save();render();toast(tr('scanned'));break}
+    case 'lossset':{const f=allFlags().find(x=>x.id===d.id);if(d.v==='open')delete S.loss.status[d.id];else S.loss.status[d.id]=d.v;
+      const msgs={asked:'Question sent to the crew lead (demo).',cleared:'Flag cleared.',confirmed:'Loss confirmed and logged for the owner.',fixed:'Marked fixed before it cost anything.',open:'Flag reopened.'};
+      if(d.v!=='open')S.feed.unshift({k:d.v==='confirmed'?'crit':d.v==='asked'?'watch':'ok',ic:'$',t:`Loss flag ${({asked:'sent to crew lead',cleared:'cleared',confirmed:'confirmed',fixed:'fixed early'})[d.v]}: ${f.t}`,s:proj(f.p).name,at:Date.now()});
+      save();render();toast(msgs[d.v]);break}
+    case 'reset':S=seed();UI.fixPhotos={};UI.buy=null;UI.draft=null;UI.result=null;UI.open={};UI.msg={};UI.filter='all';save();render();toast('Demo data reset.');break;
+  }
+});
+document.addEventListener('change',e=>{
+  if(e.target.dataset&&e.target.dataset.fixphoto){const id=e.target.dataset.fixphoto;UI.fixPhotos[id]=[...(UI.fixPhotos[id]||[]),...[...e.target.files].map(f=>URL.createObjectURL(f))];render();return}
+  if(e.target.id==='by-photo'&&e.target.files[0]){UI.buy.photo=URL.createObjectURL(e.target.files[0]);UI.buy.err='';render();return}
+  if(e.target.id==='f-proj'){newDraft(e.target.value);render()}
+  if(e.target.id==='f-photo'){[...e.target.files].forEach(f=>UI.draft.photos.push(URL.createObjectURL(f)));render()}
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='by-what'&&UI.buy){UI.buy.what=e.target.value;return}
+  if(e.target.id==='by-amt'&&UI.buy){UI.buy.amt=e.target.value;return}
+  const d=UI.draft;if(!d)return;const id=e.target.id;
+  if(id==='f-area')d.area=e.target.value;
+  const m=id.match(/^r-(moisture|surf|dew|wft)$/);
+  if(m){d.r[m[1]]=e.target.value;const k=m[1]==='surf'||m[1]==='dew'?'dew':m[1];const el=$('#p-'+k);if(el)el.innerHTML=readingPill(k)}
+});
+window.addEventListener('hashchange',()=>{route(location.hash.slice(1));render()});
+window.addEventListener('storage',e=>{if(e.key===KEY&&e.newValue){try{S=JSON.parse(e.newValue);render()}catch(err){}}});
+document.addEventListener('submit',e=>{
+  const id=e.target.id;
+  if(id==='checkform'){e.preventDefault();submitCheck();const cs=$('#cscroll');if(cs&&UI.result)cs.scrollTop=0;return}
+  if(id==='paintform'){e.preventDefault();const g=parseFloat($('#pt-gal').value),k=$('#pt-kind').value,p=activeProject(S.me),m=S.loss.materials.find(x=>x.p===p.id);if(!(g>=0))return;
+    if(k==='received')m.bought+=g;else if(k==='returned')m.returned+=g;else m.left=g;
+    S.feed.unshift({k:'info',ic:'▦',t:`Paint logged: ${g} gal ${k==='received'?'received':k==='returned'?'returned to store':'left over (count)'}`,s:p.name+' · '+crewOf(S.me).lead,at:Date.now()});save();render();toast(tr('saved'));return}
+  if(id==='buyform'){e.preventDefault();const B=UI.buy,amt=parseFloat(B.amt);if(!B.photo||!B.what||!(amt>0)){B.err=!B.photo?tr('receiptNeed'):tr('missing').replace('{n}',(!B.what?1:0)+(!(amt>0)?1:0));render();return}
+    const p=activeProject(S.me);S.loss.flags.push({id:'pu'+(S.nextId++),type:'purchase',p:p.id,sev:'watch',t:`${B.what}, ${money(amt)}`,m:`Logged in the crew app by ${crewOf(S.me).lead} with a receipt photo, during crew hours.`,amt,fix:'Approve if it matches the job'});
+    S.feed.unshift({k:'info',ic:'$',t:`Purchase logged with receipt: ${money(amt)}`,s:p.name+' · '+crewOf(S.me).lead,at:Date.now()});UI.buy=null;save();render();toast(tr('saved'));}
+});
+render();
+</script>
+
+</body>
+</html>
